@@ -1,0 +1,6 @@
+# Files produced by us
+/arcade
+/lib/
+
+# Typical build directory
+/build
