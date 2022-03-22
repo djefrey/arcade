@@ -40,8 +40,7 @@ void *dl::Handle::lookupSymbol(std::string_view symbolName)
 
 void dl::Handle::close()
 {
-    if (this->handle != nullptr) {
+    if (this->handle != nullptr)
         dlclose(this->handle);
-    }
     this->handle = nullptr;
 }

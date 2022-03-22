@@ -22,7 +22,7 @@ namespace dl {
     };
     
     class Handle {
-        void *handle;
+        void *handle = nullptr;
         std::string lastError;
         std::string fileName;
 
