@@ -41,5 +41,7 @@ arcade_set_common_target_properties(arcade_sdl2)
 
 add_library(arcade_sfml SHARED
   "src/graphics/sfml/main.cpp"
+  "src/graphics/sfml/sfmlDisplay.cpp"
+  "src/graphics/sfml/sfmlRawTexture.cpp"
 )
 arcade_set_common_target_properties(arcade_sfml)
