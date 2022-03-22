@@ -22,7 +22,7 @@ namespace dl {
     };
     
     class Handle {
-        void *handle = nullptr;
+        void *rawHandle = nullptr;
         std::string lastError;
         std::string fileName;
 
@@ -52,7 +52,7 @@ namespace dl {
 
         bool isLoaded() const
         {
-            return this->handle != nullptr;
+            return this->rawHandle != nullptr;
         }
 
         std::string_view getLastError() const
