@@ -29,8 +29,8 @@ public:
 
     // This MUST not be 0. It is the width and height of a call in the game
     // Yes, I know this is stupid and this could just be a variable, but we apparently have to be "pure" and that means no variables at all in interfaces apparently
-    void setPixelsPerCell(std::uint32_t pixelsPerCell);
-    std::uint32_t getPixelsPerCell();
+    virtual void setPixelsPerCell(std::uint32_t pixelsPerCell) = 0;
+    virtual std::uint32_t getPixelsPerCell() = 0;
 
     // RawTexture is a class containing a texture. A texture contains a width and a height, which SHOULD correspond to the width and height of the image in the .png file. Note that with a backend that supports using images in sprite (usually graphics), usually only the pngFilename parameters will be used, whereas on a backend that does not (usually text) usually only the rest of the parameters will be used. Note that pointers to RawTexture become invalid after destroying a graphics library and MUST be destroyed before doing so
     class RawTexture {
@@ -44,7 +44,15 @@ public:
     // This opens the window with the wanted window size. The size is in pixels. It MUST be called before trying to render or display anything. 
     virtual void openWindow(IDisplayModule::Vector2u pixelsWantedWindowSize) = 0;
 
-    // These are probably all the buttons you need. I would personally recommand that they map onto WASD (for left right up down), the arrow keys (for abxy), q and e (for l and r) and c and v (for start and select) to have a layout as close to an actual controller, but if you want you can do something else 
+    // These are probably all the buttons you need. I would personally recommand that they map onto WASD (for left right up down), the arrow keys (for abxy), q and e (for l and r) and c and v (for start and select) to have a layout as close to an actual controller, but if you want you can do something else (...probably your core should tell people what the inputs are in the menu...)
+    // The F1 to F7 buttons MUST NOT be used by the game as they WILL be used by the core to handle the following inputs (preferrably in the same order), which are MANDATED by the subject:
+    // - Previous graphics library
+    // - Next graphics library
+    // - Previous game
+    // - Next game
+    // - Restart the game
+    // - Go back to the menu
+    // - Exit
     enum class Button {
         Left,
         Right,
@@ -57,7 +65,14 @@ public:
         L,
         R,
         Start,
-        Select
+        Select,
+        F1,
+        F2,
+        F3,
+        F4,
+        F5,
+        F6,
+        F7,
     };
 
     // isButtonPressed returns whether the button has started getting held on this frame (i.e. if the button was also held on the previous frame it will return false)
