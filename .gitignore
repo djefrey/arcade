@@ -4,3 +4,6 @@
 
 # Typical build directory
 /build
+
+# VSCode files
+.vscode
