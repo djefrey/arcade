@@ -18,7 +18,7 @@ std::uint32_t sfml::SFMLDisplay::getPixelsPerCell()
     return this->_pixelsPerCell;
 }
 
-std::unique_ptr<IDisplayModule::RawTexture> loadTexture(const std::string &pngFilename, char character, IDisplayModule::Color characterColor, IDisplayModule::Color backgroundColor, std::size_t width, std::size_t height)
+std::unique_ptr<IDisplayModule::RawTexture> sfml::SFMLDisplay::loadTexture(const std::string &pngFilename, char character, IDisplayModule::Color characterColor, IDisplayModule::Color backgroundColor, std::size_t width, std::size_t height)
 {
     return std::make_unique<sfml::SFMLDisplay::SFMLRawTexture>();
 }
