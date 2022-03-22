@@ -1,4 +1,8 @@
 #include <iostream>
+#include <stdexcept>
+#include "arcade-interface/IDisplayModule.hpp"
+#include "dl.hpp"
+#include "coreImpl.hpp"
 
 static void usage(const char *argv0)
 {
@@ -7,8 +11,34 @@ static void usage(const char *argv0)
     exit(EXIT_FAILURE);
 }
 
-int main(int argc, char **argv)
+int program(int argc, char **argv)
 {
     if (argc != 2)
         usage(argv[0]);
+
+    dl::Handle initGraphicsLib{argv[1]};
+    if (!initGraphicsLib.isLoaded())
+        throw std::runtime_error(std::string(initGraphicsLib.getLastError()));
+    auto gEpitechArcadeGetDisplayModuleHandlePtr =
+        reinterpret_cast<decltype(&gEpitechArcadeGetDisplayModuleHandle)>(
+            initGraphicsLib.lookupSymbol("gEpitechArcadeGetDisplayModuleHandle"));
+    if (gEpitechArcadeGetDisplayModuleHandlePtr == nullptr)
+        throw std::runtime_error(std::string(initGraphicsLib.getLastError()));
+
+    CoreImpl core;
+    core.setDisplayModule(gEpitechArcadeGetDisplayModuleHandlePtr());
+    throw std::runtime_error("TODO: implement menu and stuff");
+}
+
+int main(int argc, char **argv)
+{
+    try {
+        return program(argc, argv);
+    } catch (std::exception &e) {
+        std::cerr << "Error (stdexcept): " << e.what() << '\n';
+        return 84;
+    } catch (...) {
+        std::cerr << "Error: Unknown exception !!!!!!\n";
+        return 84;
+    }
 }

@@ -19,6 +19,7 @@ project(arcade CXX)
 
 add_executable(arcade
   "src/core/main.cpp"
+  "src/core/dl.cpp"
 )
 arcade_set_common_target_properties(arcade)
 
