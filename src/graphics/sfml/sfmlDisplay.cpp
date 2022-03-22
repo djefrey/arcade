@@ -53,6 +53,10 @@ void sfml::SFMLDisplay::endTextInput()
 
 }
 
+void sfml::SFMLDisplay::clearScreen(IDisplayModule::Color color)
+{
+}
+
 void sfml::SFMLDisplay::renderSprite(IDisplayModule::Sprite sprite)
 {
 

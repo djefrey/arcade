@@ -84,7 +84,7 @@ public:
             None,
             Left,
             Right,
-        };
+        } type;
         IDisplayModule::Vector2u cellPosition;
     };
     // If someone released a mouse button on this frame, this will return a MouseButtonReleaseEvent with information on which button was released and where
@@ -104,6 +104,9 @@ public:
         IDisplayModule::RawTexture *texture;
     };
 
+    // This replaces the entire current contents of the screen with the chosen background color. This could also be done by just displaying a big texture to do this, but this is simpler and avoids having to carry around a png file just for this.
+    virtual void clearScreen(IDisplayModule::Color color) = 0;
+
     // This renders a sprite, although it WILL NOT be displayed onto the screen until display() is called.
     // Note that in text mode, a sprite will ALWAYS take at least one cell, whichever cell overlaps the most with the sprite. In text mode, should a sprite overlap more than one cell, its color WILL be displayed onto every cell for which it overlaps onto more than 50% of its area (although its character WILL NOT be displayed onto more than one cell).
     // Note that if multiple sprites are rendered onto one another, the order in which they are layered corresponds to the order in which they were rendered (i.e. when two sprites overlap, whichever was rendered last is rendered on top of the other)
@@ -112,6 +115,11 @@ public:
     // This does the actual displaying (i.e. actually puts the pixels that have been drawn onto the screen). It does no sleeping, as the core is responsible for that.
     virtual void display() = 0;
 };
+
+// This is here so that you don't get an "undefined symbol: _ZN14IDisplayModule10RawTextureD2Ev" error when importing your shared libraries. This is actually allowed, you can in fact have pure virtual interfaces that are still implemented. The purpose of leaving it as a pure virtual interface is so that IDisplayModule::RawTexture cannot be instantiated by itself and has to be implemented.
+inline IDisplayModule::RawTexture::~RawTexture()
+{
+}
 
 // Note: This should return a pointer to some IDisplayModuleImpl (please do not make that an actual class name), which should then be deleted when we're done with the module
 extern "C" std::unique_ptr<IDisplayModule> gEpitechArcadeGetDisplayModuleHandle();

@@ -14,31 +14,32 @@ namespace sfml {
     class SFMLDisplay : public IDisplayModule {
         std::uint32_t _pixelsPerCell;
 
+    public:
+        SFMLDisplay() = default;
+        ~SFMLDisplay() = default;
+
+        void setPixelsPerCell(std::uint32_t pixelsPerCell);
+        std::uint32_t getPixelsPerCell();
+
+        class SFMLRawTexture : public RawTexture {
         public:
-            SFMLDisplay() = default;
-            ~SFMLDisplay() = default;
+            SFMLRawTexture();
+            ~SFMLRawTexture();
+        };
 
-            void setPixelsPerCell(std::uint32_t pixelsPerCell);
-            std::uint32_t getPixelsPerCell();
+        std::unique_ptr<IDisplayModule::RawTexture> loadTexture(const std::string &pngFilename, char character, IDisplayModule::Color characterColor, IDisplayModule::Color backgroundColor, std::size_t width, std::size_t height);
 
-            class SFMLRawTexture : public RawTexture {
-                public:
-                    SFMLRawTexture();
-                    ~SFMLRawTexture();
-            };
+        void openWindow(IDisplayModule::Vector2u pixelsWantedWindowSize);
 
-            std::unique_ptr<IDisplayModule::RawTexture> loadTexture(const std::string &pngFilename, char character, IDisplayModule::Color characterColor, IDisplayModule::Color backgroundColor, std::size_t width, std::size_t height);
+        bool isButtonPressed(IDisplayModule::Button button);
+        IDisplayModule::MouseButtonReleaseEvent getMouseButtonReleaseEvent();
 
-            void openWindow(IDisplayModule::Vector2u pixelsWantedWindowSize);
+        void startTextInput();
+        std::string getTextInput();
+        void endTextInput();
 
-            bool isButtonPressed(IDisplayModule::Button button);
-            IDisplayModule::MouseButtonReleaseEvent getMouseButtonReleaseEvent();
-
-            void startTextInput();
-            std::string getTextInput();
-            void endTextInput();
-
-            void renderSprite(IDisplayModule::Sprite sprite);
-            void display();
+        void clearScreen(IDisplayModule::Color color);
+        void renderSprite(IDisplayModule::Sprite sprite);
+        void display();
     };
 }
