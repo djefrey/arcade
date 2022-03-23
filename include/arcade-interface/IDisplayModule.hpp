@@ -9,13 +9,16 @@
 // - pixelsPerCell must be set to the value from the old display module
 class IDisplayModule {
 public:
+    virtual ~IDisplayModule() = default;
+
     // Usually used to represent positions
     struct Vector2u {
         std::uint32_t x;
         std::uint32_t y;
     };
 
-    // All the background colors a cell can be. Can't really do more than this considering this is the minimum set that ncurses implements, and adding anymore would make this a ridiculous mess
+    // All the colors a cell can be. Can't really do more than this considering this is the minimum set that ncurses implements, and adding anymore would make this a ridiculous mess
+    // Note that "none" means no color at all (i.e. the character or background of a sprite are not drawn, for example)
     enum class Color {
         black,
         red,
@@ -25,6 +28,7 @@ public:
         magenta,
         cyan,
         white,
+        none,
     };
 
     // This MUST not be 0. It is the width and height of a call in the game
@@ -90,6 +94,10 @@ public:
     // If someone released a mouse button on this frame, this will return a MouseButtonReleaseEvent with information on which button was released and where
     virtual IDisplayModule::MouseButtonReleaseEvent getMouseButtonReleaseEvent() = 0;
 
+    // Did the user just try to close the game in a way that only the display can see ? (e.g. sf::Event::Closed, SDL_QUIT, etc.)
+    // Note: the core should handle this the same way as pressing F7, i.e. immediately exit
+    virtual bool isClosing() = 0;
+
     // You MUST call this before calling getTextInput, and should preferably do nothing else related to input than calling getTextInput until you call endTextInput
     virtual void startTextInput() = 0;
 
@@ -108,12 +116,15 @@ public:
     virtual void clearScreen(IDisplayModule::Color color) = 0;
 
     // This renders a sprite, although it WILL NOT be displayed onto the screen until display() is called.
-    // Note that in text mode, a sprite will ALWAYS take at least one cell, whichever cell overlaps the most with the sprite. In text mode, should a sprite overlap more than one cell, its color WILL be displayed onto every cell for which it overlaps onto more than 50% of its area (although its character WILL NOT be displayed onto more than one cell).
+    // Note that in text mode, a sprite will ALWAYS take at least one cell, whichever cell is at the center of the sprite. In text mode, should a sprite overlap more than one cell, its color WILL NOT be displayed onto any other cell. PLEASE DO NOT make graphics that take much more than a cell to display...
     // Note that if multiple sprites are rendered onto one another, the order in which they are layered corresponds to the order in which they were rendered (i.e. when two sprites overlap, whichever was rendered last is rendered on top of the other)
     virtual void renderSprite(IDisplayModule::Sprite sprite) = 0;
 
-    // This does the actual displaying (i.e. actually puts the pixels that have been drawn onto the screen). It does no sleeping, as the core is responsible for that.
+    // This MUST be called to do the actual displaying (i.e. actually puts the pixels that have been drawn onto the screen). It does no sleeping, as the core is responsible for that.
     virtual void display() = 0;
+
+    // This MUST be called by the core after the end of each frame (i.e. AFTER SLEEPING so as to avoid input lag) so as to allow the display module to poll events and things like that
+    virtual void update() = 0;
 };
 
 // This is here so that you don't get an "undefined symbol: _ZN14IDisplayModule10RawTextureD2Ev" error when importing your shared libraries. This is actually allowed, you can in fact have pure virtual interfaces that are still implemented. The purpose of leaving it as a pure virtual interface is so that IDisplayModule::RawTexture cannot be instantiated by itself and has to be implemented.

@@ -1,10 +1,12 @@
 #include "coreImpl.hpp"
 #include "arcade-interface/IDisplayModule.hpp"
+#include "menuGame.hpp"
+#include <filesystem>
 #include <stdexcept>
 
 IDisplayModule *CoreImpl::checkDisplayModuleNonNull()
 {
-    auto result = this->displayModule.get();
+    auto result = this->currentDisplayModule.get();
     if (result == nullptr)
         throw std::runtime_error("Called ICore method requiring an IDisplayModule without any IDisplayModule attached !");
     return result;
@@ -33,6 +35,8 @@ ICore::Texture *CoreImpl::loadTexture(const std::string &pngFilename, char chara
     };
 
     newTexture.displayModuleRawTexture = this->checkDisplayModuleNonNull()->loadTexture(pngFilename, character, characterColor, backgroundColor, width, height);
+    if (newTexture.displayModuleRawTexture == nullptr)
+        return nullptr;
     this->textures.push_back(std::move(newTexture));
     return (ICore::Texture *)&this->textures.back();
 }
@@ -68,6 +72,11 @@ void CoreImpl::endTextInput()
     this->checkDisplayModuleNonNull()->endTextInput();
 }
 
+void CoreImpl::clearScreen(ICore::Color color)
+{
+    this->checkDisplayModuleNonNull()->clearScreen(color);
+}
+
 void CoreImpl::renderSprite(ICore::Sprite sprite)
 {
     IDisplayModule::Sprite displayModuleSprite = {
@@ -77,13 +86,69 @@ void CoreImpl::renderSprite(ICore::Sprite sprite)
     this->checkDisplayModuleNonNull()->renderSprite(displayModuleSprite);
 }
 
-void CoreImpl::setDisplayModule(std::unique_ptr<IDisplayModule> displayModule)
+void CoreImpl::changeDisplayModule(std::unique_ptr<IDisplayModule> displayModule)
 {
     for (auto &i : this->textures)
         i.displayModuleRawTexture.reset();
-    this->displayModule = std::move(displayModule);
+    this->currentDisplayModule = std::move(displayModule);
     this->checkDisplayModuleNonNull()->setPixelsPerCell(this->lastSetPixelsPerCellArg);
     this->checkDisplayModuleNonNull()->openWindow(this->lastOpenWindowArg);
     for (auto &i : this->textures)
         i.displayModuleRawTexture = this->checkDisplayModuleNonNull()->loadTexture(i.pngFilename, i.character, i.characterColor, i.backgroundColor, i.width, i.height);
+}
+
+void CoreImpl::changeGameModule(std::unique_ptr<IGameModule> gameModule)
+{
+    this->textures.clear();
+    this->currentGameModule = std::move(gameModule);
+    this->currentGameModule->init(this);
+}
+
+void CoreImpl::initLibraryLists()
+{
+    for (auto &path : std::filesystem::directory_iterator("lib/")) {
+        dl::Handle dynamicLib(path.path().filename().string());
+
+        if (!dynamicLib.isLoaded())
+            continue;
+
+        auto gEpitechArcadeGetDisplayModuleHandlePtr =
+            reinterpret_cast<decltype(&gEpitechArcadeGetDisplayModuleHandle)>(
+                dynamicLib.lookupSymbol("gEpitechArcadeGetDisplayModuleHandle"));
+        if (gEpitechArcadeGetDisplayModuleHandlePtr != nullptr) {
+            this->displayLibraries.emplace_back(std::move(dynamicLib), gEpitechArcadeGetDisplayModuleHandlePtr);
+            continue;
+        }
+
+        auto gEpitechArcadeGetGameModuleHandlePtr =
+            reinterpret_cast<decltype(&gEpitechArcadeGetGameModuleHandle)>(
+                dynamicLib.lookupSymbol("gEpitechArcadeGetGameModuleHandle"));
+        if (gEpitechArcadeGetGameModuleHandlePtr != nullptr) {
+            this->gameLibraries.emplace_back(std::move(dynamicLib), gEpitechArcadeGetGameModuleHandlePtr);
+            continue;
+        }
+    }
+    if (this->gameLibraries.size() == 0)
+        throw std::runtime_error("Could not find any game to play...");
+    if (this->displayLibraries.size() == 0)
+        throw std::runtime_error("Could not find any display libraries to use...");
+}
+
+void CoreImpl::runMenu()
+{
+    auto menu = std::make_unique<MenuGame>();
+    auto menuPtr = menu.get();
+
+    this->changeGameModule(std::move(menu));
+    while (this->currentGameModule.get() == menuPtr) {
+        this->currentDisplayModule->update();
+        this->currentGameModule->update();
+        this->currentGameModule->draw();
+        this->currentDisplayModule->display();
+    }
+}
+
+void CoreImpl::runGame()
+{
+    throw std::runtime_error("TODO");
 }

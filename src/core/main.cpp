@@ -26,8 +26,11 @@ int program(int argc, char **argv)
         throw std::runtime_error(std::string(initGraphicsLib.getLastError()));
 
     CoreImpl core;
-    core.setDisplayModule(gEpitechArcadeGetDisplayModuleHandlePtr());
-    throw std::runtime_error("TODO: implement menu and stuff");
+    core.changeDisplayModule(gEpitechArcadeGetDisplayModuleHandlePtr());
+    core.initLibraryLists();
+    core.runMenu();
+    core.runGame();
+    return (0);
 }
 
 int main(int argc, char **argv)

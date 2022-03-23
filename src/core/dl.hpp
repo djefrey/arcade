@@ -3,8 +3,10 @@
 // C++ wrapper for libdl
 
 #include <string>
+#include <memory>
 #include <string_view>
 #include <dlfcn.h>
+#include "utils/deleterFromFunction.hpp"
 
 namespace dl {
     enum class ResolvePolicyTime {
@@ -22,7 +24,7 @@ namespace dl {
     };
     
     class Handle {
-        void *rawHandle = nullptr;
+        std::unique_ptr<void, utils::DeleterFromFunction<dlclose>> rawHandle;
         std::string lastError;
         std::string fileName;
 
@@ -33,14 +35,8 @@ namespace dl {
             this->load(fileName);
         }
 
-        ~Handle()
-        {
-            this->close();
-        }
-
         void load(std::string file_name);
         void *lookupSymbol(std::string_view symbolName);
-        void close();
         
         dl::ResolvePolicyTime resolvePolicyTime = dl::ResolvePolicyTime::now;
         dl::ResolvePolicyOption resolvePolicyOptions = dl::ResolvePolicyOption::none;
@@ -58,6 +54,11 @@ namespace dl {
         std::string_view getLastError() const
         {
             return this->lastError;
+        }
+
+        std::string_view getFileName() const
+        {
+            return this->fileName;
         }
     };
 };

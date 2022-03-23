@@ -21,6 +21,7 @@ add_executable(arcade
   "src/core/main.cpp"
   "src/core/dl.cpp"
   "src/core/coreImpl.cpp"
+  "src/core/menuGame.cpp"
 )
 arcade_set_common_target_properties(arcade)
 
