@@ -16,12 +16,12 @@ sfml::SFMLRawGraphicTexture::SFMLRawGraphicTexture(const std::string &pngFilenam
         throw std::runtime_error("Could not load texture '" + pngFilename + "'");
 }
 
-sfml::SFMLRawASCIITexture::SFMLRawASCIITexture(char character, IDisplayModule::Color charColor, IDisplayModule::Color bkgdColor, unsigned int _pixelsPerCell, const sf::Font &font) : _texture{}
+sfml::SFMLRawASCIITexture::SFMLRawASCIITexture(char character, IDisplayModule::Color charColor, IDisplayModule::Color bkgdColor, unsigned int characterSize, const sf::Font &font) : _texture{}
 {
     char str[2] = {character, '\0'};
-    sf::Text text{std::string(str), font, _pixelsPerCell};
+    sf::Text text{std::string(str), font, characterSize};
 
-    if (!_texture.create(_pixelsPerCell, _pixelsPerCell))
+    if (!_texture.create(characterSize + 1, characterSize + 1))
         throw std::runtime_error("Could not create render texture");
     text.setFillColor(SFML_COLORS.at(charColor));
     text.setPosition(sf::Vector2f(0, 0));

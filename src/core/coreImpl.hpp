@@ -5,6 +5,7 @@
 #include "arcade-interface/IGameModule.hpp"
 #include "dl.hpp"
 #include <deque>
+#include <optional>
 #include <set>
 #include <vector>
 #include <tuple>

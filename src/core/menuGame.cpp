@@ -115,8 +115,8 @@ void MenuGame::update()
 void MenuGame::draw()
 {
     this->coreHandle->clearScreen(ICore::Color::black);
-    this->textHandler.drawText("Arcade: Left/Right changes games, Up/Down changes display, a/start begins", std::numeric_limits<std::size_t>::max(), utils::posCellToPix({0, 0}, 8));
-    this->textHandler.drawText("D-Pad -> WASD, ABXY -> Arrow Keys, L & R -> Q and E, Start & Select -> C and V", std::numeric_limits<std::size_t>::max(), utils::posCellToPix({0, 1}, 8));
+    this->textHandler.drawText("D-Pad -> WASD, ABXY -> Arrow Keys, L & R -> Q and E, Start & Select -> C and V", std::numeric_limits<std::size_t>::max(), utils::posCellToPix({0, 0}, 8));
+    this->textHandler.drawText("Menu: Left/Right changes games, Up/Down changes display, a/start begins", std::numeric_limits<std::size_t>::max(), utils::posCellToPix({0, 1}, 8));
     this->textHandler.drawText("F1/F2: change display lib, F3/F4: change game, F5: restart, F6: menu, F7: exit", std::numeric_limits<std::size_t>::max(), utils::posCellToPix({0, 2}, 8));
     this->drawBox({0, 3}, {20, 37});
     this->drawBox({20, 3}, {20, 37});
@@ -130,7 +130,7 @@ void MenuGame::draw()
     }
 
     for (std::uint32_t i = 0; i < this->coreHandle->getDisplayLibraries().size() && i < 35; ++i) {
-        this->textHandler.drawText(this->coreHandle->getDisplayLibraries()[i].first.getFileName().substr(4), 17, utils::posCellToPix({22 * 8, 4 + i}, 8));
+        this->textHandler.drawText(this->coreHandle->getDisplayLibraries()[i].first.getFileName().substr(4), 17, utils::posCellToPix({22, 4 + i}, 8));
         if (this->coreHandle->menuCurrentlySelectedDisplay == i)
             this->textHandler.drawText(">", 1, utils::posCellToPix({21, 4 + i}, 8));
     }
