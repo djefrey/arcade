@@ -5,7 +5,9 @@
 #include "arcade-interface/IGameModule.hpp"
 #include "dl.hpp"
 #include <deque>
+#include <set>
 #include <vector>
+#include <tuple>
 
 class CoreImpl : public virtual ICore {
     IDisplayModule *checkDisplayModuleNonNull();
@@ -31,7 +33,24 @@ class CoreImpl : public virtual ICore {
 
     std::vector<std::pair<dl::Handle, std::unique_ptr<IGameModule>(*)()>> gameLibraries;
     std::vector<std::pair<dl::Handle, std::unique_ptr<IDisplayModule>(*)()>> displayLibraries;
+
+    struct Score {
+        std::uint32_t value;
+        std::string playerName;
+
+        bool operator<(const Score &other) const
+        {
+            return std::tie(value, playerName) < std::tie(other.value, other.playerName);
+        }
+    };
+    std::multiset<Score> scores;
+
+    void initLibraryLists();
+
 public:
+    CoreImpl();
+    ~CoreImpl();
+
     void setPixelsPerCell(std::uint32_t pixelsPerCell) override;
     void setFramerate(unsigned framerate) override;
     ICore::Texture *loadTexture(const std::string &pngFilename, char character, ICore::Color characterColor, ICore::Color backgroundColor, std::size_t width, std::size_t height) override;
@@ -47,10 +66,11 @@ public:
     void clearScreen(ICore::Color color) override;
     void renderSprite(ICore::Sprite sprite) override;
 
+    void addNewScore(std::uint32_t score) override;
+
     void changeDisplayModule(std::unique_ptr<IDisplayModule> displayModule);
     void changeGameModule(std::unique_ptr<IGameModule> gameModule);
 
-    void initLibraryLists();
     void runMenu();
     void runGame();
 
@@ -63,4 +83,11 @@ public:
     {
         return this->displayLibraries;
     }
+
+    const decltype(scores) &getScores() const
+    {
+        return this->scores;
+    }
+
+    std::string playerName = "Unknown";
 };

@@ -18,28 +18,30 @@ namespace sfml {
         SFMLDisplay() = default;
         ~SFMLDisplay() = default;
 
-        void setPixelsPerCell(std::uint32_t pixelsPerCell);
-        std::uint32_t getPixelsPerCell();
+        void setPixelsPerCell(std::uint32_t pixelsPerCell) override;
+        std::uint32_t getPixelsPerCell() override;
 
         class SFMLRawTexture : public RawTexture {
         public:
             SFMLRawTexture();
-            ~SFMLRawTexture();
+            ~SFMLRawTexture() override;
         };
 
-        std::unique_ptr<IDisplayModule::RawTexture> loadTexture(const std::string &pngFilename, char character, IDisplayModule::Color characterColor, IDisplayModule::Color backgroundColor, std::size_t width, std::size_t height);
+        std::unique_ptr<IDisplayModule::RawTexture> loadTexture(const std::string &pngFilename, char character, IDisplayModule::Color characterColor, IDisplayModule::Color backgroundColor, std::size_t width, std::size_t height) override;
 
-        void openWindow(IDisplayModule::Vector2u pixelsWantedWindowSize);
+        void openWindow(IDisplayModule::Vector2u pixelsWantedWindowSize) override;
 
-        bool isButtonPressed(IDisplayModule::Button button);
-        IDisplayModule::MouseButtonReleaseEvent getMouseButtonReleaseEvent();
+        bool isButtonPressed(IDisplayModule::Button button) override;
+        IDisplayModule::MouseButtonReleaseEvent getMouseButtonReleaseEvent() override;
+        bool isClosing() override;
 
-        void startTextInput();
-        std::string getTextInput();
-        void endTextInput();
+        void startTextInput() override;
+        std::string getTextInput() override;
+        void endTextInput() override;
 
-        void clearScreen(IDisplayModule::Color color);
-        void renderSprite(IDisplayModule::Sprite sprite);
-        void display();
+        void clearScreen(IDisplayModule::Color color) override;
+        void renderSprite(IDisplayModule::Sprite sprite) override;
+        void display() override;
+        void update() override;
     };
 }

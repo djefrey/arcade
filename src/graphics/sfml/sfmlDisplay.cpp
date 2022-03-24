@@ -38,6 +38,11 @@ IDisplayModule::MouseButtonReleaseEvent sfml::SFMLDisplay::getMouseButtonRelease
     return MouseButtonReleaseEvent();
 }
 
+bool sfml::SFMLDisplay::isClosing()
+{
+    return false;
+}
+
 void sfml::SFMLDisplay::startTextInput()
 {
 
@@ -63,6 +68,11 @@ void sfml::SFMLDisplay::renderSprite(IDisplayModule::Sprite sprite)
 }
 
 void sfml::SFMLDisplay::display()
+{
+
+}
+
+void sfml::SFMLDisplay::update()
 {
 
 }

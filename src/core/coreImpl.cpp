@@ -1,8 +1,30 @@
 #include "coreImpl.hpp"
 #include "arcade-interface/IDisplayModule.hpp"
 #include "menuGame.hpp"
+#include <fstream>
 #include <filesystem>
 #include <stdexcept>
+
+CoreImpl::CoreImpl()
+{
+    this->initLibraryLists();
+
+    std::ifstream scoreFile("scores.txt");
+    std::string currentLine;
+    while (std::getline(scoreFile, currentLine)) {
+        CoreImpl::Score score;
+        std::stringstream lineStream{currentLine};
+        lineStream >> score.playerName >> score.value;
+        this->scores.insert(score);
+    }
+}
+
+CoreImpl::~CoreImpl()
+{
+    std::ofstream scoreFile("scores.txt");
+    for (const auto &i : this->scores)
+        scoreFile << i.playerName << i.value << '\n';
+}
 
 IDisplayModule *CoreImpl::checkDisplayModuleNonNull()
 {
@@ -84,6 +106,11 @@ void CoreImpl::renderSprite(ICore::Sprite sprite)
         .texture = reinterpret_cast<CoreImpl::TextureImpl *>(sprite.texture)->displayModuleRawTexture.get()
     };
     this->checkDisplayModuleNonNull()->renderSprite(displayModuleSprite);
+}
+
+void CoreImpl::addNewScore(std::uint32_t score)
+{
+    this->scores.insert({score, this->playerName});
 }
 
 void CoreImpl::changeDisplayModule(std::unique_ptr<IDisplayModule> displayModule)

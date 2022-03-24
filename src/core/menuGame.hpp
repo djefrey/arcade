@@ -19,6 +19,12 @@ class MenuGame : virtual public IGameModule {
 
     std::size_t currentlySelectedGame = 0;
     std::size_t currentlySelectedDisplay = 0;
+    bool isGettingText = false;
+
+    void handleNormalInput();
+    void handleTextInput();
+    void startGettingText();
+    void endGettingText();
 public:
     void init(ICore *coreHandle);
     void update();

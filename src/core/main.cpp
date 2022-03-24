@@ -27,7 +27,6 @@ int program(int argc, char **argv)
 
     CoreImpl core;
     core.changeDisplayModule(gEpitechArcadeGetDisplayModuleHandlePtr());
-    core.initLibraryLists();
     core.runMenu();
     core.runGame();
     return (0);
