@@ -20,7 +20,7 @@ void MenuGame::init(ICore *coreHandle)
     this->boxTop = this->coreHandle->loadTexture("assets/menu/box-top.png", '-', ICore::Color::white, ICore::Color::black, 8, 8);
     this->boxBottom = this->coreHandle->loadTexture("assets/menu/box-bottom.png", '-', ICore::Color::white, ICore::Color::black, 8, 8);
 
-    this->textHandler.init(coreHandle, 8, "assets/pacman-font/", true);
+    this->textHandler.init(coreHandle, 8);
 }
 
 void MenuGame::startGettingText()
