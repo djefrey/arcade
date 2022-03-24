@@ -8,26 +8,36 @@
 #include <SFML/Graphics.hpp>
 #include "sfmlDisplay.hpp"
 #include "sfmlRawTexture.hpp"
+#include <filesystem>
+#include <stdexcept>
 
 sfml::SFMLDisplay::SFMLDisplay()
 {
-    if (!_font.loadFromFile("./assets/font/Joystix.TTF"))
-        throw std::runtime_error("Could not load font file");
 }
 
 void sfml::SFMLDisplay::openWindow(Vector2u size)
 {
-    sf::VideoMode mode(size.x, size.y);
-
-    _window = std::make_unique<sf::RenderWindow>(mode, "Arcade");
+    _window = std::make_unique<sf::RenderWindow>(sf::VideoMode(size.x, size.y), "Arcade");
 }
 
-std::unique_ptr<IDisplayModule::RawTexture> sfml::SFMLDisplay::loadTexture(const std::string &pngFilename, char character, IDisplayModule::Color characterColor, IDisplayModule::Color backgroundColor, std::size_t width, std::size_t height)
+sf::Font &sfml::SFMLDisplay::getFont(const std::string &fontFilename)
 {
-    if (pngFilename.size() > 0)
-        return std::make_unique<SFMLRawGraphicTexture>(pngFilename);
-    else
-        return std::make_unique<SFMLRawASCIITexture>(character, characterColor, backgroundColor, _pixelsPerCell, _font);
+    auto [result, didInsert] = _fonts.emplace(fontFilename, sf::Font());
+    if (didInsert && !result->second.loadFromFile(fontFilename))
+        throw std::runtime_error("Could not load font file '" + fontFilename + "'");
+    return result->second;
+}
+
+std::unique_ptr<IDisplayModule::RawTexture> sfml::SFMLDisplay::loadTexture(const std::string &filename, char character, IDisplayModule::Color characterColor, IDisplayModule::Color backgroundColor, std::size_t width, std::size_t height)
+{
+    (void)height;
+
+    std::filesystem::path filenamePath{filename};
+    if (filenamePath.extension() == ".png")
+        return std::make_unique<SFMLRawGraphicTexture>(filename);
+    if (filenamePath.extension() == ".ttf")
+        return std::make_unique<SFMLRawASCIITexture>(character, characterColor, backgroundColor, width, this->getFont(filename));
+    throw std::runtime_error("Tried to load texture from invalid file !");
 }
 
 void sfml::SFMLDisplay::clearScreen(IDisplayModule::Color color)
@@ -52,22 +62,22 @@ void sfml::SFMLDisplay::display()
 void sfml::SFMLDisplay::update()
 {
     sf::Event event;
-    sf::Keyboard::Key key;
 
     _leftMouseRelease = false;
     _rightMouseRelease = false;
+    _textInput.clear();
     while (_window->pollEvent(event)) {
         if (event.type == sf::Event::Closed)
             _close = true;
         else if (event.type == sf::Event::TextEntered)
-            _textInput += event.text.unicode;
+            _textInput = event.text.unicode;
         else if (event.type == sf::Event::MouseButtonReleased) {
             if (event.mouseButton.button == sf::Mouse::Left)
                 _leftMouseRelease = true;
             else if (event.mouseButton.button == sf::Mouse::Right)
                 _rightMouseRelease = true;
-        } else if (event.type == sf::Event::MouseMoved)
             _mousePos = (Vector2u) {event.mouseButton.x / _pixelsPerCell, event.mouseButton.y / _pixelsPerCell};
+        }
     }
 }
 
@@ -97,7 +107,6 @@ bool sfml::SFMLDisplay::isClosing()
 
 void sfml::SFMLDisplay::startTextInput()
 {
-    _textInput.clear();
     _readTextInput = true;
 }
 
@@ -108,7 +117,6 @@ std::string sfml::SFMLDisplay::getTextInput()
 
 void sfml::SFMLDisplay::endTextInput()
 {
-    _textInput.clear();
     _readTextInput = false;
 }
 

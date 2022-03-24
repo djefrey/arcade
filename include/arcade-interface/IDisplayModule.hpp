@@ -36,14 +36,20 @@ public:
     virtual void setPixelsPerCell(std::uint32_t pixelsPerCell) = 0;
     virtual std::uint32_t getPixelsPerCell() = 0;
 
-    // RawTexture is a class containing a texture. A texture contains a width and a height, which SHOULD correspond to the width and height of the image in the .png file. Note that with a backend that supports using images in sprite (usually graphics), usually only the pngFilename parameters will be used, whereas on a backend that does not (usually text) usually only the rest of the parameters will be used. Note that pointers to RawTexture become invalid after destroying a graphics library and MUST be destroyed before doing so
+    // RawTexture is a class containing a texture.
+    // If loading a .png, a texture contains a width and a height, which SHOULD correspond to the width and height of the image in the .png file. Note that with a backend that supports using images in sprite (usually graphics), usually only the filename parameters will be used, whereas on a backend that does not (usually text) usually only the rest of the parameters will be used. Note that pointers to RawTexture become invalid after destroying a graphics library and MUST be destroyed before doing so
+    // If loading a .ttf, the resulting texture will be the given character, with the given color and the given width used as the font size.
+    // Note that it is genereally preferrable that one use a fixed-size font
     class RawTexture {
     public:
         virtual ~RawTexture() = 0;
     };
 
     // This MUST only ever be called by ICore, which MUST properly handle the case where graphics libraries are reloaded during a game session (and yes the subject requires this)
-    virtual std::unique_ptr<IDisplayModule::RawTexture> loadTexture(const std::string &pngFilename, char character, IDisplayModule::Color characterColor, IDisplayModule::Color backgroundColor, std::size_t width, std::size_t height) = 0;
+    // The filename MUST either end in .png or .ttf, and point to files of the correct format.
+    // If the filename ends in .png, the texture will be loaded from there
+    // If the filename ends in .ttf, the texture will be a letter loaded from that TTF file
+    virtual std::unique_ptr<IDisplayModule::RawTexture> loadTexture(const std::string &filename, char character, IDisplayModule::Color characterColor, IDisplayModule::Color backgroundColor, std::size_t width, std::size_t height) = 0;
 
     // This opens the window with the wanted window size. The size is in pixels. It MUST be called before trying to render or display anything. 
     virtual void openWindow(IDisplayModule::Vector2u pixelsWantedWindowSize) = 0;
@@ -92,6 +98,7 @@ public:
         IDisplayModule::Vector2u cellPosition;
     };
     // If someone released a mouse button on this frame, this will return a MouseButtonReleaseEvent with information on which button was released and where
+    // Note that events gotten from this do not "exhaust" or anything like that. You can call getMouseButtonReleaseEvent as many times as you want in a frame without any problems
     virtual IDisplayModule::MouseButtonReleaseEvent getMouseButtonReleaseEvent() = 0;
 
     // Did the user just try to close the game in a way that only the display can see ? (e.g. sf::Event::Closed, SDL_QUIT, etc.)
@@ -102,6 +109,9 @@ public:
     virtual void startTextInput() = 0;
 
     // This MUST never be called while not in between a call to startTextInput and a call to endTextInput
+    // This returns text read from the user DURING THE CURRENT FRAME, as a string.
+    // Usage of backspace WILL be returned as a \b character.
+    // Usage of enter WILL be returned as a \n character.
     virtual std::string getTextInput() = 0;
 
     // This should never be called before a call to startTextInput and no calls to getTextInput should occur after this before another call to startTextInput
@@ -116,7 +126,7 @@ public:
     virtual void clearScreen(IDisplayModule::Color color) = 0;
 
     // This renders a sprite, although it WILL NOT be displayed onto the screen until display() is called.
-    // Note that in text mode, a sprite will ALWAYS take at least one cell, whichever cell is at the center of the sprite. In text mode, should a sprite overlap more than one cell, its color WILL NOT be displayed onto any other cell. PLEASE DO NOT make graphics that take much more than a cell to display...
+    // Note that in text mode, a sprite will ALWAYS take at least one cell, whichever cell is at the center of the sprite. In text mode, should a sprite overlap more than one cell, its color WILL NOT be displayed onto any other cell. PLEASE DO NOT make graphics that take much more than a cell to display... (If your textures are larger than pixelsPerCell * 2, you're likely doing something wrong...
     // Note that if multiple sprites are rendered onto one another, the order in which they are layered corresponds to the order in which they were rendered (i.e. when two sprites overlap, whichever was rendered last is rendered on top of the other)
     virtual void renderSprite(IDisplayModule::Sprite sprite) = 0;
 

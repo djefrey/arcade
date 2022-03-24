@@ -12,13 +12,14 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include "arcade-interface/IDisplayModule.hpp"
+#include <optional>
 
 namespace sfml {
     class SFMLDisplay : public IDisplayModule {
         std::uint32_t _pixelsPerCell = 0;
 
         std::unique_ptr<sf::RenderWindow> _window;
-        sf::Font _font;
+        std::unordered_map<std::string, sf::Font> _fonts;
 
         bool _close = false;
         bool _leftMouseRelease = false;
@@ -28,11 +29,13 @@ namespace sfml {
         bool _readTextInput = false;
         std::string _textInput;
 
+        sf::Font &getFont(const std::string &fontFilename);
+
     public:
         SFMLDisplay();
         ~SFMLDisplay() = default;
 
-        std::unique_ptr<IDisplayModule::RawTexture> loadTexture(const std::string &pngFilename, char character, IDisplayModule::Color characterColor, IDisplayModule::Color backgroundColor, std::size_t width, std::size_t height) override;
+        std::unique_ptr<IDisplayModule::RawTexture> loadTexture(const std::string &filename, char character, IDisplayModule::Color characterColor, IDisplayModule::Color backgroundColor, std::size_t width, std::size_t height) override;
 
         void openWindow(IDisplayModule::Vector2u pixelsWantedWindowSize) override;
 

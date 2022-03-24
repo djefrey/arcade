@@ -34,7 +34,7 @@ namespace sfml {
         sf::RenderTexture _texture;
 
         public:
-            SFMLRawASCIITexture(char character, IDisplayModule::Color charColor, IDisplayModule::Color bkgdColor, unsigned int _pixelsPerCell, const sf::Font &font);
+            SFMLRawASCIITexture(char character, IDisplayModule::Color charColor, IDisplayModule::Color bkgdColor, unsigned int characterSize, const sf::Font &font);
             ~SFMLRawASCIITexture() = default;
 
             const sf::Texture &getTexture() const;

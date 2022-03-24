@@ -20,7 +20,7 @@ void MenuGame::init(ICore *coreHandle)
     this->boxTop = this->coreHandle->loadTexture("assets/menu/box-top.png", '-', ICore::Color::white, ICore::Color::black, 8, 8);
     this->boxBottom = this->coreHandle->loadTexture("assets/menu/box-bottom.png", '-', ICore::Color::white, ICore::Color::black, 8, 8);
 
-    this->textHandler.init(coreHandle, 8);
+    this->textHandler.init(coreHandle, 8, "assets/font/emulogic.ttf");
 }
 
 void MenuGame::startGettingText()
@@ -39,36 +39,33 @@ void MenuGame::handleNormalInput()
 {
     if (this->coreHandle->isButtonPressed(ICore::Button::A) ||
         this->coreHandle->isButtonPressed(ICore::Button::Start)) {
-        this->coreHandle->changeGameModule(this->coreHandle->getGameLibraries()[this->currentlySelectedGame].second());
-        this->coreHandle->changeDisplayModule(this->coreHandle->getDisplayLibraries()[this->currentlySelectedDisplay].second());
+        this->coreHandle->menuNotifyIsFinished = true;
         return;
     }
     if (this->coreHandle->isButtonPressed(ICore::Button::Left)) {
-        if (this->currentlySelectedGame == 0)
-            this->currentlySelectedGame = this->coreHandle->getGameLibraries().size() - 1;
+        if (this->coreHandle->menuCurrentlySelectedGame == 0)
+            this->coreHandle->menuCurrentlySelectedGame = this->coreHandle->getGameLibraries().size() - 1;
         else
-            --this->currentlySelectedGame;
+            --this->coreHandle->menuCurrentlySelectedGame;
     }
     if (this->coreHandle->isButtonPressed(ICore::Button::Right)) {
-        ++this->currentlySelectedGame;
-        this->currentlySelectedGame %= this->coreHandle->getGameLibraries().size();
+        ++this->coreHandle->menuCurrentlySelectedGame;
+        this->coreHandle->menuCurrentlySelectedGame %= this->coreHandle->getGameLibraries().size();
     }
     if (this->coreHandle->isButtonPressed(ICore::Button::Up)) {
-        if (this->currentlySelectedDisplay == 0)
-            this->currentlySelectedDisplay = this->coreHandle->getDisplayLibraries().size() - 1;
+        if (this->coreHandle->menuCurrentlySelectedDisplay == 0)
+            this->coreHandle->menuCurrentlySelectedDisplay = this->coreHandle->getDisplayLibraries().size() - 1;
         else
-            --this->currentlySelectedDisplay;
+            --this->coreHandle->menuCurrentlySelectedDisplay;
     }
     if (this->coreHandle->isButtonPressed(ICore::Button::Down)) {
-        ++this->currentlySelectedDisplay;
-        this->currentlySelectedDisplay %= this->coreHandle->getDisplayLibraries().size();
+        ++this->coreHandle->menuCurrentlySelectedDisplay;
+        this->coreHandle->menuCurrentlySelectedDisplay %= this->coreHandle->getDisplayLibraries().size();
     }
 
-    while (true) {
-        auto mouseReleaseEvent = this->coreHandle->getMouseButtonReleaseEvent();
-        if (mouseReleaseEvent.type == ICore::MouseButtonReleaseEvent::Type::None)
-            break;
-        if (std::clamp(mouseReleaseEvent.cellPosition.x, std::uint32_t(60), std::uint32_t(80)) == mouseReleaseEvent.cellPosition.x &&
+    auto mouseReleaseEvent = this->coreHandle->getMouseButtonReleaseEvent();
+    if (mouseReleaseEvent.type != ICore::MouseButtonReleaseEvent::Type::None) {
+        if (std::clamp(mouseReleaseEvent.cellPosition.x, std::uint32_t(40), std::uint32_t(60)) == mouseReleaseEvent.cellPosition.x &&
             std::clamp(mouseReleaseEvent.cellPosition.y, std::uint32_t(3), std::uint32_t(37)) == mouseReleaseEvent.cellPosition.y) {
             this->startGettingText();
             return;
@@ -100,16 +97,11 @@ void MenuGame::handleTextInput()
         return;
     }
 
-    while (true) {
-        auto mouseReleaseEvent = this->coreHandle->getMouseButtonReleaseEvent();
-        if (mouseReleaseEvent.type == ICore::MouseButtonReleaseEvent::Type::None)
-            break;
+    auto mouseReleaseEvent = this->coreHandle->getMouseButtonReleaseEvent();
+    if (mouseReleaseEvent.type != ICore::MouseButtonReleaseEvent::Type::None)
         if (std::clamp(mouseReleaseEvent.cellPosition.x, std::uint32_t(60), std::uint32_t(80)) != mouseReleaseEvent.cellPosition.x ||
-            std::clamp(mouseReleaseEvent.cellPosition.y, std::uint32_t(3), std::uint32_t(37)) != mouseReleaseEvent.cellPosition.y) {
+            std::clamp(mouseReleaseEvent.cellPosition.y, std::uint32_t(3), std::uint32_t(37)) != mouseReleaseEvent.cellPosition.y)
             this->endGettingText();
-            return;
-        }
-    }
 }
 
 void MenuGame::update()
@@ -132,14 +124,14 @@ void MenuGame::draw()
     this->drawBox({60, 3}, {20, 37});
 
     for (std::uint32_t i = 0; i < this->coreHandle->getGameLibraries().size() && i < 35; ++i) {
-        this->textHandler.drawText(this->coreHandle->getGameLibraries()[i].first.getFileName(), 18, utils::posCellToPix({1, 4 + i}, 8));
-        if (this->currentlySelectedGame == i)
-            this->textHandler.drawText(">", 1, utils::posCellToPix({1, i + 1}, 8));
+        this->textHandler.drawText(this->coreHandle->getGameLibraries()[i].first.getFileName().substr(4), 17, utils::posCellToPix({2, 4 + i}, 8));
+        if (this->coreHandle->menuCurrentlySelectedGame == i)
+            this->textHandler.drawText(">", 1, utils::posCellToPix({1, 4 + i}, 8));
     }
 
     for (std::uint32_t i = 0; i < this->coreHandle->getDisplayLibraries().size() && i < 35; ++i) {
-        this->textHandler.drawText(this->coreHandle->getDisplayLibraries()[i].first.getFileName(), 18, utils::posCellToPix({21 * 8, 4 + i}, 8));
-        if (this->currentlySelectedDisplay == i)
+        this->textHandler.drawText(this->coreHandle->getDisplayLibraries()[i].first.getFileName().substr(4), 17, utils::posCellToPix({22 * 8, 4 + i}, 8));
+        if (this->coreHandle->menuCurrentlySelectedDisplay == i)
             this->textHandler.drawText(">", 1, utils::posCellToPix({21, 4 + i}, 8));
     }
 
@@ -153,7 +145,7 @@ void MenuGame::draw()
         this->textHandler.drawText(scoreString, 7, utils::posCellToPix({52, 4 + scoresPrinted}, 8));
     }
 
-    this->textHandler.drawText("Enter your name here:", std::numeric_limits<std::size_t>::max(), utils::posCellToPix({41, 4}, 8));
+    this->textHandler.drawText("Enter name here:", std::numeric_limits<std::size_t>::max(), utils::posCellToPix({41, 4}, 8));
     this->textHandler.drawText(this->coreHandle->playerName, 18, utils::posCellToPix({41, 8}, 8));
 }
 

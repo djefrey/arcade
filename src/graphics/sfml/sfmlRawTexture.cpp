@@ -13,7 +13,7 @@
 sfml::SFMLRawGraphicTexture::SFMLRawGraphicTexture(const std::string &pngFilename) : _texture{}
 {
     if (!_texture.loadFromFile(pngFilename))
-        throw std::runtime_error("Could not load texture " + pngFilename);
+        throw std::runtime_error("Could not load texture '" + pngFilename + "'");
 }
 
 sfml::SFMLRawASCIITexture::SFMLRawASCIITexture(char character, IDisplayModule::Color charColor, IDisplayModule::Color bkgdColor, unsigned int _pixelsPerCell, const sf::Font &font) : _texture{}

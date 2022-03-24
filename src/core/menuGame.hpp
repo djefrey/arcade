@@ -17,8 +17,6 @@ class MenuGame : virtual public IGameModule {
     ICore::Texture *boxBottom;
     utils::TextHandler textHandler;
 
-    std::size_t currentlySelectedGame = 0;
-    std::size_t currentlySelectedDisplay = 0;
     bool isGettingText = false;
 
     void handleNormalInput();

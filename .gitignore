@@ -2,6 +2,9 @@
 /arcade
 /lib/
 
+# Files produced by arcade
+/scores.txt
+
 # Typical build directory
 /build
 

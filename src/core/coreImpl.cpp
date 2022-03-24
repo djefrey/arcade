@@ -4,6 +4,7 @@
 #include <fstream>
 #include <filesystem>
 #include <stdexcept>
+#include <cassert>
 
 CoreImpl::CoreImpl()
 {
@@ -54,11 +55,11 @@ ICore::Texture *CoreImpl::loadTexture(const std::string &pngFilename, char chara
         .backgroundColor = backgroundColor,
         .width = width,
         .height = height,
+        .displayModuleRawTexture = nullptr
     };
 
     newTexture.displayModuleRawTexture = this->checkDisplayModuleNonNull()->loadTexture(pngFilename, character, characterColor, backgroundColor, width, height);
-    if (newTexture.displayModuleRawTexture == nullptr)
-        return nullptr;
+    assert(newTexture.displayModuleRawTexture != nullptr);
     this->textures.push_back(std::move(newTexture));
     return (ICore::Texture *)&this->textures.back();
 }
@@ -118,10 +119,14 @@ void CoreImpl::changeDisplayModule(std::unique_ptr<IDisplayModule> displayModule
     for (auto &i : this->textures)
         i.displayModuleRawTexture.reset();
     this->currentDisplayModule = std::move(displayModule);
-    this->checkDisplayModuleNonNull()->setPixelsPerCell(this->lastSetPixelsPerCellArg);
-    this->checkDisplayModuleNonNull()->openWindow(this->lastOpenWindowArg);
-    for (auto &i : this->textures)
+    if (this->lastSetPixelsPerCellArg.has_value())
+        this->checkDisplayModuleNonNull()->setPixelsPerCell(*this->lastSetPixelsPerCellArg);
+    if (this->lastOpenWindowArg.has_value())
+        this->checkDisplayModuleNonNull()->openWindow(*this->lastOpenWindowArg);
+    for (auto &i : this->textures) {
         i.displayModuleRawTexture = this->checkDisplayModuleNonNull()->loadTexture(i.pngFilename, i.character, i.characterColor, i.backgroundColor, i.width, i.height);
+        assert(i.displayModuleRawTexture != nullptr);
+    }
 }
 
 void CoreImpl::changeGameModule(std::unique_ptr<IGameModule> gameModule)
@@ -161,21 +166,50 @@ void CoreImpl::initLibraryLists()
         throw std::runtime_error("Could not find any display libraries to use...");
 }
 
+bool CoreImpl::shouldExitNow()
+{
+    return this->isButtonPressed(ICore::Button::F7) || this->checkDisplayModuleNonNull()->isClosing();
+}
+
 void CoreImpl::runMenu()
 {
     auto menu = std::make_unique<MenuGame>();
-    auto menuPtr = menu.get();
 
+    this->menuNotifyIsFinished = false;
     this->changeGameModule(std::move(menu));
-    while (this->currentGameModule.get() == menuPtr) {
+    while (!this->menuNotifyIsFinished && !this->shouldExitNow()) {
+        this->setupSleep();
         this->currentDisplayModule->update();
         this->currentGameModule->update();
         this->currentGameModule->draw();
         this->currentDisplayModule->display();
+        this->doSleep();
+    }
+    if (this->menuNotifyIsFinished) {
+        this->changeGameModule(this->getGameLibraries().at(this->menuCurrentlySelectedGame).second()); // (note: this is why we can't just do this in the game, as that would result in a use-after-free)
+        this->changeDisplayModule(this->getDisplayLibraries().at(this->menuCurrentlySelectedDisplay).second());
     }
 }
 
 void CoreImpl::runGame()
 {
-    throw std::runtime_error("TODO");
+    while (!this->shouldExitNow()) {
+        throw std::runtime_error("TODO");
+    }
+}
+
+void CoreImpl::setupSleep()
+{
+    clock_gettime(CLOCK_REALTIME, &this->timeFrameEnd);
+    this->timeFrameEnd.tv_nsec += 50000000;
+    if (this->timeFrameEnd.tv_nsec > 999999999) {
+        this->timeFrameEnd.tv_nsec -= 1000000000;
+        ++this->timeFrameEnd.tv_sec;
+    }
+}
+
+void CoreImpl::doSleep()
+{
+    while (clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &this->timeFrameEnd, nullptr) != 0)
+        continue;
 }

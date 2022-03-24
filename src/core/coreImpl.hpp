@@ -23,16 +23,17 @@ class CoreImpl : public virtual ICore {
         std::unique_ptr<IDisplayModule::RawTexture> displayModuleRawTexture;
     };
 
+    // gameLibraries and displayLibraries MUST be before currentDisplayModule and currentGameModule since otherwise the deleter for them will be gone (i.e. the handle to the dynamic library closed) by the time we try to delete those (since members are deleted in the opposite order of declaration)
+    std::vector<std::pair<dl::Handle, std::unique_ptr<IGameModule>(*)()>> gameLibraries;
+    std::vector<std::pair<dl::Handle, std::unique_ptr<IDisplayModule>(*)()>> displayLibraries;
     std::unique_ptr<IDisplayModule> currentDisplayModule;
     std::unique_ptr<IGameModule> currentGameModule;
+
     unsigned framerate;
     std::deque<CoreImpl::TextureImpl> textures;
 
-    std::uint32_t lastSetPixelsPerCellArg;
-    ICore::Vector2u lastOpenWindowArg;
-
-    std::vector<std::pair<dl::Handle, std::unique_ptr<IGameModule>(*)()>> gameLibraries;
-    std::vector<std::pair<dl::Handle, std::unique_ptr<IDisplayModule>(*)()>> displayLibraries;
+    std::optional<std::uint32_t> lastSetPixelsPerCellArg;
+    std::optional<ICore::Vector2u> lastOpenWindowArg;
 
     struct Score {
         std::uint32_t value;
@@ -46,6 +47,11 @@ class CoreImpl : public virtual ICore {
     std::multiset<Score> scores;
 
     void initLibraryLists();
+    bool shouldExitNow();
+
+    struct timespec timeFrameEnd;
+    void setupSleep();
+    void doSleep();
 
 public:
     CoreImpl();
@@ -72,6 +78,9 @@ public:
     void changeGameModule(std::unique_ptr<IGameModule> gameModule);
 
     void runMenu();
+    bool menuNotifyIsFinished;
+    std::size_t menuCurrentlySelectedGame = 0, menuCurrentlySelectedDisplay = 0;
+
     void runGame();
 
     const decltype(gameLibraries) &getGameLibraries() const

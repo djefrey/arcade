@@ -27,6 +27,8 @@ int program(int argc, char **argv)
 
     CoreImpl core;
     core.changeDisplayModule(gEpitechArcadeGetDisplayModuleHandlePtr());
+    for (auto &i : core.getDisplayLibraries())
+        std::cout << i.first.getFileName() << '\n';
     core.runMenu();
     core.runGame();
     return (0);
