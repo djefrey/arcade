@@ -25,6 +25,9 @@ namespace sfml {
         bool _rightMouseRelease = false;
         Vector2u _mousePos = {0, 0};
 
+        bool _readTextInput = false;
+        std::string _textInput;
+
     public:
         SFMLDisplay();
         ~SFMLDisplay() = default;

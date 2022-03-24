@@ -59,6 +59,8 @@ void sfml::SFMLDisplay::update()
     while (_window->pollEvent(event)) {
         if (event.type == sf::Event::Closed)
             _close = true;
+        else if (event.type == sf::Event::TextEntered)
+            _textInput += event.text.unicode;
         else if (event.type == sf::Event::MouseButtonReleased) {
             if (event.mouseButton.button == sf::Mouse::Left)
                 _leftMouseRelease = true;
@@ -95,17 +97,19 @@ bool sfml::SFMLDisplay::isClosing()
 
 void sfml::SFMLDisplay::startTextInput()
 {
-
+    _textInput.clear();
+    _readTextInput = true;
 }
 
 std::string sfml::SFMLDisplay::getTextInput()
 {
-    return "TO BE IMPLEMENTED";
+    return _textInput;
 }
 
 void sfml::SFMLDisplay::endTextInput()
 {
-
+    _textInput.clear();
+    _readTextInput = false;
 }
 
 void sfml::SFMLDisplay::setPixelsPerCell(std::uint32_t pixelsPerCell)
