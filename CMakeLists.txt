@@ -6,8 +6,11 @@ macro(arcade_set_common_target_properties target_name)
       CXX_STANDARD 17
       CXX_STANDARD_REQUIRED ON
       CXX_EXTENSIONS OFF
+
       RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/"
       LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib"
+
+      PREFIX ""
   )
 
   target_include_directories(${target_name}
