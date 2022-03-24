@@ -7,25 +7,21 @@
 
 #pragma once
 
-#include <SFML/Graphics/Texture.hpp>
+#include <map>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Font.hpp>
 #include "arcade-interface/IDisplayModule.hpp"
 
 namespace sfml {
     class SFMLDisplay : public IDisplayModule {
-        std::uint32_t _pixelsPerCell;
+        std::uint32_t _pixelsPerCell = 0;
+
+        std::unique_ptr<sf::RenderWindow> _window;
+        sf::Font _font;
 
     public:
         SFMLDisplay() = default;
         ~SFMLDisplay() = default;
-
-        void setPixelsPerCell(std::uint32_t pixelsPerCell) override;
-        std::uint32_t getPixelsPerCell() override;
-
-        class SFMLRawTexture : public RawTexture {
-        public:
-            SFMLRawTexture();
-            ~SFMLRawTexture() override;
-        };
 
         std::unique_ptr<IDisplayModule::RawTexture> loadTexture(const std::string &pngFilename, char character, IDisplayModule::Color characterColor, IDisplayModule::Color backgroundColor, std::size_t width, std::size_t height) override;
 
@@ -43,5 +39,10 @@ namespace sfml {
         void renderSprite(IDisplayModule::Sprite sprite) override;
         void display() override;
         void update() override;
+
+        void setPixelsPerCell(std::uint32_t pixelsPerCell) override;
+        std::uint32_t getPixelsPerCell() override;
     };
+
+    extern const std::map<IDisplayModule::Color, sf::Color> SFML_COLORS;
 }
