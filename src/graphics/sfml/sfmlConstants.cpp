@@ -32,8 +32,8 @@ const std::map<IDisplayModule::Button, sf::Keyboard::Key> sfml::SFML_BUTTONS = {
     std::make_pair(IDisplayModule::Button::B, sf::Keyboard::L),
     std::make_pair(IDisplayModule::Button::A, sf::Keyboard::M),
 
-    std::make_pair(IDisplayModule::Button::L, sf::Keyboard::LShift),
-    std::make_pair(IDisplayModule::Button::R, sf::Keyboard::RShift),
+    std::make_pair(IDisplayModule::Button::L, sf::Keyboard::A),
+    std::make_pair(IDisplayModule::Button::R, sf::Keyboard::P),
 
     std::make_pair(IDisplayModule::Button::Start, sf::Keyboard::C),
     std::make_pair(IDisplayModule::Button::Select, sf::Keyboard::Comma),
