@@ -167,7 +167,6 @@ void CoreImpl::runMenu()
     auto menuPtr = menu.get();
 
     this->changeGameModule(std::move(menu));
-    this-> currentDisplayModule->openWindow(Vector2u{640, 480});
     while (this->currentGameModule.get() == menuPtr) {
         this->currentDisplayModule->update();
         this->currentGameModule->update();
