@@ -31,9 +31,13 @@ namespace utils {
         {
             for (std::size_t i = 0; i < text.length() && i < maxLength; ++i) {
                 char textureCharacter = text[i];
+
+                if (textureCharacter == ' ' || textureCharacter == '-' || textureCharacter == '&'  || textureCharacter == '_')
+                    continue;
+
                 if (this->isUppercaseOnly)
                     textureCharacter = std::toupper(textureCharacter);
-                
+
                 ICore::Texture **texturePtr = &this->letters[textureCharacter];
                 if (*texturePtr == nullptr)
                     *texturePtr = this->coreHandle->loadTexture(this->fontDirectory + '/' + makeFilename(textureCharacter) + ".png", text[i], ICore::Color::black, ICore::Color::white, this->letterSize, this->letterSize);
