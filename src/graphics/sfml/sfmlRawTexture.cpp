@@ -23,7 +23,8 @@ sfml::SFMLRawASCIITexture::SFMLRawASCIITexture(char character, IDisplayModule::C
 
     if (!_texture.create(_pixelsPerCell, _pixelsPerCell))
         throw std::runtime_error("Could not create render texture");
-    text.setColor(SFML_COLORS.at(charColor));
+    text.setFillColor(SFML_COLORS.at(charColor));
+    text.setPosition(sf::Vector2f(0, 0));
     _texture.clear(SFML_COLORS.at(bkgdColor));
     _texture.draw(text);
     _texture.display();

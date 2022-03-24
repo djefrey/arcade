@@ -9,6 +9,12 @@
 #include "sfmlDisplay.hpp"
 #include "sfmlRawTexture.hpp"
 
+sfml::SFMLDisplay::SFMLDisplay()
+{
+    if (!_font.loadFromFile("./assets/font/Joystix.TTF"))
+        throw std::runtime_error("Could not load font file");
+}
+
 void sfml::SFMLDisplay::openWindow(Vector2u size)
 {
     sf::VideoMode mode(size.x, size.y);
