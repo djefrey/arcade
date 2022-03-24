@@ -8,8 +8,9 @@
 #pragma once
 
 #include <map>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Window/Keyboard.hpp>
 #include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include "arcade-interface/IDisplayModule.hpp"
 
 namespace sfml {
@@ -18,6 +19,11 @@ namespace sfml {
 
         std::unique_ptr<sf::RenderWindow> _window;
         sf::Font _font;
+
+        bool _close = false;
+        bool _leftMouseRelease = false;
+        bool _rightMouseRelease = false;
+        Vector2u _mousePos = {0, 0};
 
     public:
         SFMLDisplay();
@@ -45,4 +51,5 @@ namespace sfml {
     };
 
     extern const std::map<IDisplayModule::Color, sf::Color> SFML_COLORS;
+    extern const std::map<IDisplayModule::Button, sf::Keyboard::Key> SFML_BUTTONS;
 }
