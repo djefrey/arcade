@@ -27,6 +27,7 @@ arcade_set_common_target_properties(arcade)
 
 add_library(arcade_pacman SHARED
   "src/games/pacman/main.cpp"
+  "src/games/pacman/pacmanGameModule.cpp"
 )
 arcade_set_common_target_properties(arcade_pacman)
 

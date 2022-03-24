@@ -134,7 +134,7 @@ void CoreImpl::changeGameModule(std::unique_ptr<IGameModule> gameModule)
 void CoreImpl::initLibraryLists()
 {
     for (auto &path : std::filesystem::directory_iterator("lib/")) {
-        dl::Handle dynamicLib(path.path().filename().string());
+        dl::Handle dynamicLib(path.path().string());
 
         if (!dynamicLib.isLoaded())
             continue;
