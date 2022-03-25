@@ -132,8 +132,21 @@ void CoreImpl::changeDisplayModule(std::unique_ptr<IDisplayModule> displayModule
 void CoreImpl::changeGameModule(std::unique_ptr<IGameModule> gameModule)
 {
     this->textures.clear();
+    this->lastOpenWindowArg.reset();
+    this->lastSetPixelsPerCellArg.reset();
+    this->changeDisplayModuleToCurrentlySelected();
     this->currentGameModule = std::move(gameModule);
     this->currentGameModule->init(this);
+}
+
+void CoreImpl::changeDisplayModuleToCurrentlySelected()
+{
+    this->changeDisplayModule(this->getDisplayLibraries().at(this->currentlySelectedDisplay).second());
+}
+
+void CoreImpl::changeGameModuleToCurrentlySelected()
+{
+    this->changeGameModule(this->getGameLibraries().at(this->currentlySelectedGame).second());
 }
 
 void CoreImpl::initLibraryLists()
@@ -185,23 +198,79 @@ void CoreImpl::runMenu()
         this->currentDisplayModule->display();
         this->doSleep();
     }
-    if (this->menuNotifyIsFinished) {
-        this->changeGameModule(this->getGameLibraries().at(this->menuCurrentlySelectedGame).second()); // (note: this is why we can't just do this in the game, as that would result in a use-after-free)
-        this->changeDisplayModule(this->getDisplayLibraries().at(this->menuCurrentlySelectedDisplay).second());
+    if (this->menuNotifyIsFinished)
+        this->changeGameModuleToCurrentlySelected(); // (note: this is why we can't just do this in the game, as that would result in a use-after-free)
+}
+
+void CoreImpl::decrementCurrentlySelectedGame()
+{
+    if (this->currentlySelectedGame == 0)
+        this->currentlySelectedGame = this->getGameLibraries().size() - 1;
+    else
+        --this->currentlySelectedGame;
+}
+
+void CoreImpl::incrementCurrentlySelectedGame()
+{
+    ++this->currentlySelectedGame;
+    this->currentlySelectedGame %= this->getGameLibraries().size();
+}
+
+void CoreImpl::decrementCurrentlySelectedDisplay()
+{
+    if (this->currentlySelectedDisplay == 0)
+        this->currentlySelectedDisplay = this->getDisplayLibraries().size() - 1;
+    else
+        --this->currentlySelectedDisplay;
+}
+
+void CoreImpl::incrementCurrentlySelectedDisplay()
+{
+    ++this->currentlySelectedDisplay;
+    this->currentlySelectedDisplay %= this->getDisplayLibraries().size();
+}
+
+void CoreImpl::checkAlwaysMappedKeysInGame()
+{
+    if (this->checkDisplayModuleNonNull()->isButtonPressed(IDisplayModule::Button::F1)) {
+        this->decrementCurrentlySelectedDisplay();
+        this->changeDisplayModuleToCurrentlySelected();
     }
+    if (this->checkDisplayModuleNonNull()->isButtonPressed(IDisplayModule::Button::F2)) {
+        this->incrementCurrentlySelectedDisplay();
+        this->changeDisplayModuleToCurrentlySelected();
+    }
+    if (this->checkDisplayModuleNonNull()->isButtonPressed(IDisplayModule::Button::F3)) {
+        this->decrementCurrentlySelectedGame();
+        this->changeGameModuleToCurrentlySelected();
+    }
+    if (this->checkDisplayModuleNonNull()->isButtonPressed(IDisplayModule::Button::F4)) {
+        this->incrementCurrentlySelectedGame();
+        this->changeGameModuleToCurrentlySelected();
+    }
+    if (this->checkDisplayModuleNonNull()->isButtonPressed(IDisplayModule::Button::F5))
+        this->changeGameModuleToCurrentlySelected();
+    if (this->checkDisplayModuleNonNull()->isButtonPressed(IDisplayModule::Button::F6))
+        this->runMenu();
 }
 
 void CoreImpl::runGame()
 {
     while (!this->shouldExitNow()) {
-        throw std::runtime_error("TODO");
+        this->setupSleep();
+        this->currentDisplayModule->update();
+        this->checkAlwaysMappedKeysInGame();
+        this->currentGameModule->update();
+        this->currentGameModule->draw();
+        this->currentDisplayModule->display();
+        this->doSleep();
     }
 }
 
 void CoreImpl::setupSleep()
 {
     clock_gettime(CLOCK_REALTIME, &this->timeFrameEnd);
-    this->timeFrameEnd.tv_nsec += 50000000;
+    this->timeFrameEnd.tv_nsec += 16666666;
     if (this->timeFrameEnd.tv_nsec > 999999999) {
         this->timeFrameEnd.tv_nsec -= 1000000000;
         ++this->timeFrameEnd.tv_sec;

@@ -54,6 +54,8 @@ class CoreImpl : public virtual ICore {
     void setupSleep();
     void doSleep();
 
+    void checkAlwaysMappedKeysInGame();
+
 public:
     CoreImpl();
     ~CoreImpl();
@@ -77,10 +79,17 @@ public:
 
     void changeDisplayModule(std::unique_ptr<IDisplayModule> displayModule);
     void changeGameModule(std::unique_ptr<IGameModule> gameModule);
+    void changeDisplayModuleToCurrentlySelected();
+    void changeGameModuleToCurrentlySelected();
 
     void runMenu();
+
     bool menuNotifyIsFinished;
-    std::size_t menuCurrentlySelectedGame = 0, menuCurrentlySelectedDisplay = 0;
+    std::size_t currentlySelectedGame = 0, currentlySelectedDisplay = 0;
+    void decrementCurrentlySelectedGame();
+    void incrementCurrentlySelectedGame();
+    void decrementCurrentlySelectedDisplay();
+    void incrementCurrentlySelectedDisplay();
 
     void runGame();
 

@@ -42,26 +42,14 @@ void MenuGame::handleNormalInput()
         this->coreHandle->menuNotifyIsFinished = true;
         return;
     }
-    if (this->coreHandle->isButtonPressed(ICore::Button::Left)) {
-        if (this->coreHandle->menuCurrentlySelectedGame == 0)
-            this->coreHandle->menuCurrentlySelectedGame = this->coreHandle->getGameLibraries().size() - 1;
-        else
-            --this->coreHandle->menuCurrentlySelectedGame;
-    }
-    if (this->coreHandle->isButtonPressed(ICore::Button::Right)) {
-        ++this->coreHandle->menuCurrentlySelectedGame;
-        this->coreHandle->menuCurrentlySelectedGame %= this->coreHandle->getGameLibraries().size();
-    }
-    if (this->coreHandle->isButtonPressed(ICore::Button::Up)) {
-        if (this->coreHandle->menuCurrentlySelectedDisplay == 0)
-            this->coreHandle->menuCurrentlySelectedDisplay = this->coreHandle->getDisplayLibraries().size() - 1;
-        else
-            --this->coreHandle->menuCurrentlySelectedDisplay;
-    }
-    if (this->coreHandle->isButtonPressed(ICore::Button::Down)) {
-        ++this->coreHandle->menuCurrentlySelectedDisplay;
-        this->coreHandle->menuCurrentlySelectedDisplay %= this->coreHandle->getDisplayLibraries().size();
-    }
+    if (this->coreHandle->isButtonPressed(ICore::Button::Left))
+        this->coreHandle->decrementCurrentlySelectedGame();
+    if (this->coreHandle->isButtonPressed(ICore::Button::Right))
+        this->coreHandle->incrementCurrentlySelectedGame();
+    if (this->coreHandle->isButtonPressed(ICore::Button::Up))
+        this->coreHandle->decrementCurrentlySelectedDisplay();
+    if (this->coreHandle->isButtonPressed(ICore::Button::Down))
+        this->coreHandle->incrementCurrentlySelectedDisplay();
 
     auto mouseReleaseEvent = this->coreHandle->getMouseButtonReleaseEvent();
     if (mouseReleaseEvent.type != ICore::MouseButtonReleaseEvent::Type::None) {
@@ -125,13 +113,13 @@ void MenuGame::draw()
 
     for (std::uint32_t i = 0; i < this->coreHandle->getGameLibraries().size() && i < 35; ++i) {
         this->textHandler.drawText(this->coreHandle->getGameLibraries()[i].first.getFileName().substr(4), 17, utils::posCellToPix({2, 4 + i}, 8));
-        if (this->coreHandle->menuCurrentlySelectedGame == i)
+        if (this->coreHandle->currentlySelectedGame == i)
             this->textHandler.drawText(">", 1, utils::posCellToPix({1, 4 + i}, 8));
     }
 
     for (std::uint32_t i = 0; i < this->coreHandle->getDisplayLibraries().size() && i < 35; ++i) {
         this->textHandler.drawText(this->coreHandle->getDisplayLibraries()[i].first.getFileName().substr(4), 17, utils::posCellToPix({22, 4 + i}, 8));
-        if (this->coreHandle->menuCurrentlySelectedDisplay == i)
+        if (this->coreHandle->currentlySelectedDisplay == i)
             this->textHandler.drawText(">", 1, utils::posCellToPix({21, 4 + i}, 8));
     }
 
