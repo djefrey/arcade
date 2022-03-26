@@ -15,8 +15,12 @@ CoreImpl::CoreImpl()
     std::string currentLine;
     while (std::getline(scoreFile, currentLine)) {
         CoreImpl::Score score;
-        std::stringstream lineStream{currentLine};
-        lineStream >> score.playerName >> score.value;
+        std::size_t i = currentLine.size() - 1;
+        for (; i != std::size_t(-1); --i)
+            if (!isdigit(currentLine[i]) && currentLine[i] != '-')
+                break;
+        score.value = std::strtol(currentLine.substr(i + 1).c_str(), nullptr, 0);
+        score.playerName = currentLine.substr(0, i);
         this->scores.insert(score);
     }
 }
@@ -25,7 +29,7 @@ CoreImpl::~CoreImpl()
 {
     std::ofstream scoreFile("scores.txt");
     for (const auto &i : this->scores)
-        scoreFile << i.playerName << i.value << '\n';
+        scoreFile << i.playerName << ' ' << i.value << '\n';
 }
 
 IDisplayModule *CoreImpl::checkDisplayModuleNonNull()
