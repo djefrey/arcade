@@ -2,6 +2,7 @@
 #include "arcade-interface/IDisplayModule.hpp"
 #include "menuGame.hpp"
 #include <fstream>
+#include <iostream>
 #include <filesystem>
 #include <stdexcept>
 #include <cassert>
@@ -154,8 +155,10 @@ void CoreImpl::initLibraryLists()
     for (auto &path : std::filesystem::directory_iterator("lib/")) {
         dl::Handle dynamicLib(path.path().string());
 
-        if (!dynamicLib.isLoaded())
+        if (!dynamicLib.isLoaded()) {
+            std::cerr << "Invalid .so (or non-.so file) found in lib/: '" << path.path().string() << "' (error: '" << dynamicLib.getLastError() << "')\n";
             continue;
+        }
 
         auto gEpitechArcadeGetDisplayModuleHandlePtr =
             reinterpret_cast<decltype(&gEpitechArcadeGetDisplayModuleHandle)>(
