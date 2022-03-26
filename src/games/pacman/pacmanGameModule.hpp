@@ -170,6 +170,7 @@ class PacmanGameModule : public virtual IGameModule {
     Sprite *const spriteInky = &PacmanGameModule::sprites[3];
     Sprite *const spriteClyde = &PacmanGameModule::sprites[4];
     Sprite *const spriteFruit = &PacmanGameModule::sprites[5];
+    void clearSprites();
 
     static ICore::Vector2u actorPositionToSpritePosition(ICore::Vector2u actorPosition);
 

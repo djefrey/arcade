@@ -269,9 +269,9 @@ void PacmanGameModule::setCellScoreFruit(PacmanGameModule::GameState::BonusFruit
     constexpr std::uint64_t mapFruitsToScore[] = {10, 30, 50, 70, 100, 200, 300, 500};
 
     if (bonusFruit == PacmanGameModule::GameState::BonusFruit::none)
-        this->setCellText({12, 20}, "    ");
+        this->setCellText({11, 20}, "    ");
     else
-        this->setCellScore({15, 20}, mapFruitsToScore[static_cast<int>(bonusFruit)]);
+        this->setCellScore({14, 20}, mapFruitsToScore[static_cast<int>(bonusFruit)]);
 }
 
 void PacmanGameModule::setCellEnable(ICore::Vector2u cellPosition, bool enable)
@@ -287,6 +287,12 @@ std::optional<PacmanGameModule::DrawableCellThing> PacmanGameModule::getCellDraw
     if (result == this->drawnCellThings.end())
         return std::nullopt;
     return result->second;
+}
+
+void PacmanGameModule::clearSprites()
+{
+    for (auto &i : this->sprites)
+        i.enabled = false;
 }
 
 ICore::Texture *PacmanGameModule::getBonusFruitTexture(PacmanGameModule::GameState::BonusFruit bonusFruit)
@@ -317,6 +323,8 @@ void PacmanGameModule::updateIntro()
 {
     // When we start up the intro, draw the initial text
     if (this->introState.triggerStart.isNow(this)) {
+        this->soundHandler.stopAllSounds();
+        this->clearSprites();
         this->resetAllDraw();
         this->inputEnabled = true;
         this->setCellText({3, 0}, "1UP   HIGH SCORE   2UP");
@@ -525,6 +533,8 @@ void PacmanGameModule::updateGameInit()
 // Make actors visible, remove the "PLAYER ONE" text and start a new life
 void PacmanGameModule::updateGameInitRound()
 {
+    this->clearSprites();
+
     // This removes the "PLAYER ONE" text
     this->setCellText({9, 14}, "          ");
 
@@ -937,7 +947,7 @@ void PacmanGameModule::updateGameGhostTarget(PacmanGameModule::GameState::Ghost 
 
     case GameState::Ghost::State::chase:
         {
-            const auto pacmanCellPosition = utils::posCellToPix(this->gameState.pacman.position, 8);
+            const auto pacmanCellPosition = utils::posPixToCell(this->gameState.pacman.position, 8);
             const auto pacmanDirVec2u = GameState::directionToVector2u(this->gameState.pacman.currentDir);
 
             switch (ghost->type) {
@@ -1156,7 +1166,7 @@ void PacmanGameModule::updateGameActors()
         }
 
         // Check if we should eat a dot or an energizer pill
-        const auto pacmanCellPosition = utils::posCellToPix(this->gameState.pacman.position, 8);
+        const auto pacmanCellPosition = utils::posPixToCell(this->gameState.pacman.position, 8);
         if (this->updateGameIsCellDot(pacmanCellPosition)) {
             this->gameState.triggerAteDot.setNow(this);
             this->gameState.triggerHouseLeaveForce.setNow(this);
@@ -1487,5 +1497,13 @@ void PacmanGameModule::draw()
     for (const auto &i : this->sprites) {
         if (i.enabled && i.texture != nullptr)
             this->coreHandle->renderSprite({i.position, i.texture});
+    }
+
+    // Debug code to display every ghost's target
+    if (false) {
+        this->textHandler.drawText(".", 4, utils::posCellToPix(this->gameState.blinky->targetCell, 8), ICore::Color::red);
+        this->textHandler.drawText(".", 4, utils::posCellToPix(this->gameState.pinky->targetCell, 8), ICore::Color::magenta);
+        this->textHandler.drawText(".", 4, utils::posCellToPix(this->gameState.inky->targetCell, 8), ICore::Color::cyan);
+        this->textHandler.drawText(".", 4, utils::posCellToPix(this->gameState.clyde->targetCell, 8), ICore::Color::yellow);
     }
 }
