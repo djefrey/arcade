@@ -6,6 +6,9 @@
 #include <limits>
 #include <cassert>
 
+constexpr bool godMode = false;
+constexpr bool debugMode = false;
+
 PacmanGameModule::GameState::LevelInformation PacmanGameModule::GameState::getLevelInformation(std::uint32_t round)
 {
     round = std::min(static_cast<std::size_t>(round), std::size(GameState::levelInformationTable));
@@ -1045,7 +1048,7 @@ bool PacmanGameModule::updateGameGhostDirection(PacmanGameModule::GameState::Gho
     case GameState::Ghost::State::leavingGhostHouse:
         // If the ghost is leaving the ghost house, we need to get them out of there
         if (ghost->actor.position.x == GameState::ghostHousePixelEnterPoint.x) {
-            if (ghost->actor.position.x > GameState::ghostHousePixelEnterPoint.y)
+            if (ghost->actor.position.y > GameState::ghostHousePixelEnterPoint.y)
                 ghost->nextDir = GameState::dirUp;
         }
         else {
@@ -1055,7 +1058,7 @@ bool PacmanGameModule::updateGameGhostDirection(PacmanGameModule::GameState::Gho
             else if (ghost->actor.position.y < middleY)
                 ghost->nextDir = GameState::dirDown;
             else
-                ghost->nextDir = (ghost->actor.position.y > GameState::ghostHousePixelEnterPoint.x) ? GameState::dirLeft : GameState::dirRight;
+                ghost->nextDir = (ghost->actor.position.x > GameState::ghostHousePixelEnterPoint.x) ? GameState::dirLeft : GameState::dirRight;
         }
         ghost->actor.currentDir = ghost->nextDir;
         return true;
@@ -1071,7 +1074,7 @@ bool PacmanGameModule::updateGameGhostDirection(PacmanGameModule::GameState::Gho
                 ghost->nextDir = (ghost->actor.position.x < GameState::ghostHousePixelEnterPoint.x) ? GameState::dirRight : GameState::dirLeft;
             else
                 ghost->nextDir = GameState::dirDown;
-        } else if (ghost->actor.position.x == targetPixelPosition.x)
+        } else if (ghost->actor.position.y == targetPixelPosition.y)
             ghost->nextDir = (ghost->actor.position.x < targetPixelPosition.x) ? GameState::dirRight : GameState::dirLeft;
         ghost->actor.currentDir = ghost->nextDir;
         return true;
@@ -1179,6 +1182,7 @@ void PacmanGameModule::updateGameActors()
             this->gameState.triggerAtePill.setNow(this);
             this->setCellCharacter(pacmanCellPosition, ' ', ICore::Color::none);
             this->gameState.score += 5;
+            this->updateGameDotEaten();
             this->gameState.ghostsEatenCount = 0;
             for (auto &i : this->gameState.ghosts)
                 i.triggerFrightened.setNow(this);
@@ -1211,17 +1215,19 @@ void PacmanGameModule::updateGameActors()
                     this->soundHandler.startSound("assets/pacman/eat-ghost.wav", 2);
                 } else if ((currentGhost.state == PacmanGameModule::GameState::Ghost::State::chase) ||
                            (currentGhost.state == PacmanGameModule::GameState::Ghost::State::scatter)) {
-                    this->soundHandler.stopAllSounds();
-                    this->gameState.triggerPacmanKilled.setNow(this);
-                    this->gameState.freezeReason |= PacmanGameModule::GameState::freezeReasonPacmanKilled;
+                    if (!godMode) {
+                        this->soundHandler.stopAllSounds();
+                        this->gameState.triggerPacmanKilled.setNow(this);
+                        this->gameState.freezeReason |= PacmanGameModule::GameState::freezeReasonPacmanKilled;
 
-                    // Either:
-                    // Pac-Man has some lives left: We thus start a new round
-                    // Pac-Man has no lives left: We thus start the game over sequence
-                    if (this->gameState.currentLives > 0)
-                        this->gameState.triggerReady.setAfter(this, PacmanGameModule::GameState::freezeFramesAfterPacmanKilled + PacmanGameModule::GameState::freezeFramesPacmanDeathSequence);
-                    else
-                        this->gameState.triggerGameOver.setAfter(this, PacmanGameModule::GameState::freezeFramesAfterPacmanKilled + PacmanGameModule::GameState::freezeFramesPacmanDeathSequence);
+                        // Either:
+                        // Pac-Man has some lives left: We thus start a new round
+                        // Pac-Man has no lives left: We thus start the game over sequence
+                        if (this->gameState.currentLives > 0)
+                            this->gameState.triggerReady.setAfter(this, PacmanGameModule::GameState::freezeFramesAfterPacmanKilled + PacmanGameModule::GameState::freezeFramesPacmanDeathSequence);
+                        else
+                            this->gameState.triggerGameOver.setAfter(this, PacmanGameModule::GameState::freezeFramesAfterPacmanKilled + PacmanGameModule::GameState::freezeFramesPacmanDeathSequence);
+                    }
                 }
             }
         }
@@ -1366,7 +1372,7 @@ void PacmanGameModule::updateGameSprites()
             else
                 switch (this->gameState.ghosts[i].state) {
                 case GameState::Ghost::State::justEyes:
-                    if (this->gameState.triggerAteGhost.isBefore(this, GameState::freezeFramesAfterGhostEaten)) {
+                    if (this->gameState.ghosts[i].triggerGotEaten.isBefore(this, GameState::freezeFramesAfterGhostEaten)) {
                         // TODO: render score instead of ghost when it gets eaten
                         sprite.texture = nullptr;
                     } else
@@ -1500,10 +1506,10 @@ void PacmanGameModule::draw()
     }
 
     // Debug code to display every ghost's target
-    if (false) {
-        this->textHandler.drawText(".", 4, utils::posCellToPix(this->gameState.blinky->targetCell, 8), ICore::Color::red);
-        this->textHandler.drawText(".", 4, utils::posCellToPix(this->gameState.pinky->targetCell, 8), ICore::Color::magenta);
-        this->textHandler.drawText(".", 4, utils::posCellToPix(this->gameState.inky->targetCell, 8), ICore::Color::cyan);
-        this->textHandler.drawText(".", 4, utils::posCellToPix(this->gameState.clyde->targetCell, 8), ICore::Color::yellow);
+    if (debugMode) {
+        this->textHandler.drawText(".", 1, utils::posCellToPix(this->gameState.blinky->targetCell, 8), ICore::Color::red);
+        this->textHandler.drawText(".", 1, utils::posCellToPix(this->gameState.pinky->targetCell, 8), ICore::Color::magenta);
+        this->textHandler.drawText(".", 1, utils::posCellToPix(this->gameState.inky->targetCell, 8), ICore::Color::cyan);
+        this->textHandler.drawText(".", 1, utils::posCellToPix(this->gameState.clyde->targetCell, 8), ICore::Color::yellow);
     }
 }
