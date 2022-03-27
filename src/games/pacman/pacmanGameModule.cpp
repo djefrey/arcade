@@ -8,6 +8,7 @@
 
 constexpr bool godMode = false;
 constexpr bool debugMode = false;
+constexpr bool originalGameBehavior = false; // Whether we should try to follow with the original game as best as possible or do what we got ordered to do
 
 PacmanGameModule::GameState::LevelInformation PacmanGameModule::GameState::getLevelInformation(std::uint32_t round)
 {
@@ -993,8 +994,14 @@ void PacmanGameModule::updateGameGhostTarget(PacmanGameModule::GameState::Ghost 
         break;
 
     case GameState::Ghost::State::frightened:
-        // A completely random target position is chosen in frightened mode
-        ghost->targetCell = {rand() % PacmanGameModule::displayCells.x, rand() % PacmanGameModule::displayCells.y};
+        if (originalGameBehavior) {
+            // A completely random target position is chosen in frightened mode
+            ghost->targetCell = {rand() % PacmanGameModule::displayCells.x, rand() % PacmanGameModule::displayCells.y};
+        } else {
+            const auto pacmanCellPosition = utils::posPixToCell(this->gameState.pacman.position, 8);
+            const auto ghostCellPosition = utils::posPixToCell(ghost->actor.position, 8);
+            ghost->targetCell = utils::subVec2u(ghostCellPosition, utils::subVec2u(pacmanCellPosition, ghostCellPosition));
+        }
         break;
 
     case GameState::Ghost::State::justEyes:
