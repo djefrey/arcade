@@ -470,6 +470,7 @@ class PacmanGameModule : public virtual IGameModule {
     // Determines the new pixel position for the actor, given a direction (note: this does NOT check for blocking cells)
     ICore::Vector2u updateGameMove(ICore::Vector2u position, GameState::Direction direction, bool allowCornering);
 
+    std::int32_t updateGameGetRemainingDots();
     unsigned updateGameGetGhostMoveSpeed(const PacmanGameModule::GameState::Ghost *ghost);
 
     // Computes the next direction for this ghost. This returns true if the movement to do now should ALWAYS occur without giving a single shit about blocking tiles or the ghost's position or whatever (for stuff like when we're in the ghost house)

@@ -7,10 +7,11 @@
 #include <cassert>
 
 constexpr bool originalGameBehavior = false; // Whether we should try to follow with the original game as best as possible or do what we got ordered to do
-constexpr bool debugEnableAll  = false;
+constexpr bool debugEnableAll = false;
 constexpr bool debugGodMode = debugEnableAll || false;
 constexpr bool debugFreeze = debugEnableAll || false;
 constexpr bool debugTargets = debugEnableAll || false;
+constexpr std::uint32_t debugStartingRound = 0;
 
 PacmanGameModule::GameState::LevelInformation PacmanGameModule::GameState::getLevelInformation(std::uint32_t round)
 {
@@ -519,7 +520,7 @@ void PacmanGameModule::updateGameInit()
 {
     this->inputEnabled = true;
     this->updateGameDisableAllTimers();
-    this->gameState.currentRound = 0;
+    this->gameState.currentRound = debugStartingRound;
     this->gameState.freezeReason = PacmanGameModule::GameState::freezeReasonPrelude;
     if (debugFreeze)
         puts("freeze set only prelude");
@@ -668,7 +669,23 @@ bool PacmanGameModule::updateGameShouldPacmanMove()
     if (this->gameState.triggerAtePill.framesSince(this) < 3)
         return false;
 
-    return (this->currentFrame % 8) != 0;
+    // Pac-Man goes slightly faster when ghosts are frightened
+    for (auto &i : this->gameState.ghosts)
+        if (i.state == GameState::Ghost::State::frightened) {
+            if (this->gameState.currentRound == 0)
+                return this->currentFrame % 10;
+            if (this->gameState.currentRound < 4)
+                return this->currentFrame % 20;
+            return true;
+        }
+
+    // Pac-Man goes slightly slower at the early rounds, then goes faster as rounds progress and slightly slower after round 21
+    if (this->gameState.currentRound == 0)
+        return this->currentFrame % 5;
+    if ((this->gameState.currentRound >= 1 && this->gameState.currentRound <= 3) ||
+        this->gameState.currentRound >= 20)
+        return this->currentFrame % 10;
+    return true;
 }
 
 PacmanGameModule::GameState::Direction PacmanGameModule::updateGameGetInputDirection(PacmanGameModule::GameState::Direction defaultDirection)
@@ -1020,11 +1037,16 @@ void PacmanGameModule::updateGameGhostTarget(PacmanGameModule::GameState::Ghost 
     }
 }
 
+std::int32_t PacmanGameModule::updateGameGetRemainingDots()
+{
+    return (GameState::totalDotCount - this->gameState.dotsEatenCount);
+}
+
 unsigned PacmanGameModule::updateGameGetGhostMoveSpeed(const PacmanGameModule::GameState::Ghost *ghost)
 {
     assert(ghost != nullptr);
 
-    // Ghosts go at 50% speed in the ghost house, when leaving it and when frightened, go at 150% speed when we're just eyes (which is also the case graphically while entering the ghost house) and go much slower when in the tunnel
+    // Ghosts go at 50% speed in the ghost house, when leaving it and when frightened, go at 150% speed when they're just eyes (which is also the case graphically while entering the ghost house) and go much slower when in the tunnel
     // Otherwise, ghosts move very slightly slower than Pac-Man
     switch (ghost->state) {
     case GameState::Ghost::State::inGhostHouse:
@@ -1037,10 +1059,49 @@ unsigned PacmanGameModule::updateGameGetGhostMoveSpeed(const PacmanGameModule::G
         return (this->currentFrame & 1) + 1;
 
     default:
-        if (GameState::cellPositionIsInTunnel(utils::posPixToCell(ghost->actor.position, 8)))
-            return bool((this->currentFrame * 2) % 4);
-        else
-            return bool(this->currentFrame % 7);
+        // Ghost speed depends on the current round (they go faster as rounds go on)... it's much slower when in a tunnel, though
+        if (GameState::cellPositionIsInTunnel(utils::posPixToCell(ghost->actor.position, 8))) {
+            if (this->gameState.currentRound == 0)
+                return (this->currentFrame % 5) == 0 || (this->currentFrame % 5) == 2;
+            return (this->currentFrame % 2) == 0;
+        }
+        else {
+            if (ghost->type == GameState::ghostBlinky) {
+                // Blinky becomes "Elroy" when Pac-Man has eaten enough dots, which makes him faster
+                if (this->gameState.currentRound == 0) {
+                    if (this->updateGameGetRemainingDots() < 10)
+                        return bool(this->currentFrame % 6);
+                    if (this->updateGameGetRemainingDots() < 20)
+                        return bool(this->currentFrame % 5);
+                } else if (this->gameState.currentRound >= 1 && this->gameState.currentRound <= 3) {
+                    if (this->updateGameGetRemainingDots() < 15 + ((this->gameState.currentRound != 1) * 5))
+                        return bool(this->currentFrame % 20);
+                    if (this->updateGameGetRemainingDots() < 30 + ((this->gameState.currentRound != 1) * 10))
+                        return bool(this->currentFrame % 10);
+                } else {
+                    if (this->updateGameGetRemainingDots() < 20
+                        + ((this->gameState.currentRound > 4) * 5)
+                        + ((this->gameState.currentRound > 7) * 5)
+                        + ((this->gameState.currentRound > 10) * 10)
+                        + ((this->gameState.currentRound > 13) * 10)
+                        + ((this->gameState.currentRound > 17) * 10))
+                        return 1 + !bool(this->currentFrame % 20);
+                    if (this->updateGameGetRemainingDots() < 40
+                        + ((this->gameState.currentRound > 4) * 10)
+                        + ((this->gameState.currentRound > 7) * 10)
+                        + ((this->gameState.currentRound > 10) * 20)
+                        + ((this->gameState.currentRound > 13) * 20)
+                        + ((this->gameState.currentRound > 17) * 20))
+                        return 1;
+                }
+            }
+
+            if (this->gameState.currentRound == 0)
+                return bool(this->currentFrame % 4);
+            if (this->gameState.currentRound >= 1 && this->gameState.currentRound <= 3)
+                return bool(this->currentFrame % 6);
+            return bool(this->currentFrame % 20);
+        }
     }
 }
 
