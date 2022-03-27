@@ -854,10 +854,45 @@ void PacmanGameModule::updateGameGhosthouseDotCounters()
     }
 }
 
+// Ghosts do less scattering as rounds go on
 PacmanGameModule::GameState::Ghost::State PacmanGameModule::updateGameGetGhostScatterOrChase()
 {
     auto framesSinceRoundStarted = this->gameState.triggerRoundStarted.framesSince(this);
 
+    if (this->gameState.currentRound > 4) {
+        if (framesSinceRoundStarted < 5 * 60)
+            return GameState::Ghost::State::scatter;
+        if (framesSinceRoundStarted < 25 * 60)
+            return GameState::Ghost::State::chase;
+        if (framesSinceRoundStarted < 30 * 60)
+            return GameState::Ghost::State::scatter;
+        if (framesSinceRoundStarted < 50 * 60)
+            return GameState::Ghost::State::chase;
+        if (framesSinceRoundStarted < 55 * 60)
+            return GameState::Ghost::State::scatter;
+        if (framesSinceRoundStarted < (55 + 1037) * 60)
+            return GameState::Ghost::State::chase;
+        if (framesSinceRoundStarted < ((55 + 1037) * 60 + 1))
+            return GameState::Ghost::State::scatter;
+        return GameState::Ghost::State::chase;
+    }
+    if (this->gameState.currentRound > 0) {
+        if (framesSinceRoundStarted < 7 * 60)
+            return GameState::Ghost::State::scatter;
+        if (framesSinceRoundStarted < 27 * 60)
+            return GameState::Ghost::State::chase;
+        if (framesSinceRoundStarted < 34 * 60)
+            return GameState::Ghost::State::scatter;
+        if (framesSinceRoundStarted < 54 * 60)
+            return GameState::Ghost::State::chase;
+        if (framesSinceRoundStarted < 59 * 60)
+            return GameState::Ghost::State::scatter;
+        if (framesSinceRoundStarted < (59 + 1033) * 60)
+            return GameState::Ghost::State::chase;
+        if (framesSinceRoundStarted < ((59 + 1033) * 60 + 1))
+            return GameState::Ghost::State::scatter;
+        return GameState::Ghost::State::chase;
+    }
     if (framesSinceRoundStarted < 7 * 60)
         return GameState::Ghost::State::scatter;
     if (framesSinceRoundStarted < 27 * 60)
