@@ -54,14 +54,11 @@ namespace utils {
 
         void stopSound(std::size_t soundId)
         {
-            if (this->pids[soundId] != 0)
+            if (this->pids[soundId] != 0) {
                 kill(this->pids[soundId], SIGINT);
-            this->pids[soundId] = 0;
-            while (true) {
-                auto pid = waitpid(-1, NULL, WNOHANG);
-                if (pid == 0 || pid == -1)
-                    break;
+                waitpid(this->pids[soundId], NULL, WNOHANG);
             }
+            this->pids[soundId] = 0;
         }
 
         void stopAllSounds()

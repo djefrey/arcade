@@ -6,13 +6,15 @@
 #include <limits>
 #include <cassert>
 
-constexpr bool godMode = false;
-constexpr bool debugMode = false;
 constexpr bool originalGameBehavior = false; // Whether we should try to follow with the original game as best as possible or do what we got ordered to do
+constexpr bool debugEnableAll  = false;
+constexpr bool debugGodMode = debugEnableAll || false;
+constexpr bool debugFreeze = debugEnableAll || false;
+constexpr bool debugTargets = debugEnableAll || false;
 
 PacmanGameModule::GameState::LevelInformation PacmanGameModule::GameState::getLevelInformation(std::uint32_t round)
 {
-    round = std::min(static_cast<std::size_t>(round), std::size(GameState::levelInformationTable));
+    round = std::min(static_cast<std::size_t>(round), std::size(GameState::levelInformationTable) - 1);
     return GameState::levelInformationTable[round];
 }
 
@@ -519,6 +521,8 @@ void PacmanGameModule::updateGameInit()
     this->updateGameDisableAllTimers();
     this->gameState.currentRound = 0;
     this->gameState.freezeReason = PacmanGameModule::GameState::freezeReasonPrelude;
+    if (debugFreeze)
+        puts("freeze set only prelude");
     this->gameState.currentLives = PacmanGameModule::GameState::initialLifeCount;
     this->gameState.globalDotCounter.active = false;
     this->gameState.globalDotCounter.value = 0;
@@ -561,6 +565,8 @@ void PacmanGameModule::updateGameInitRound()
 
     this->gameState.activeBonusFruit = PacmanGameModule::GameState::BonusFruit::none;
     this->gameState.freezeReason = PacmanGameModule::GameState::freezeReasonReady;
+    if (debugFreeze)
+        puts("freeze set only ready");
     this->gameState.ghostsEatenCount = 0;
     this->updateGameDisableAllTimers();
 
@@ -1219,13 +1225,17 @@ void PacmanGameModule::updateGameActors()
                     ++this->gameState.ghostsEatenCount;
                     this->gameState.score += 10 * (1 << this->gameState.ghostsEatenCount);
                     this->gameState.freezeReason |= PacmanGameModule::GameState::freezeReasonAteGhost;
+                    if (debugFreeze)
+                        puts("freeze ate ghost");
                     this->soundHandler.startSound("assets/pacman/eat-ghost.wav", 2);
                 } else if ((currentGhost.state == PacmanGameModule::GameState::Ghost::State::chase) ||
                            (currentGhost.state == PacmanGameModule::GameState::Ghost::State::scatter)) {
-                    if (!godMode) {
+                    if (!debugGodMode) {
                         this->soundHandler.stopAllSounds();
                         this->gameState.triggerPacmanKilled.setNow(this);
                         this->gameState.freezeReason |= PacmanGameModule::GameState::freezeReasonPacmanKilled;
+                        if (debugFreeze)
+                            puts("freeze pacman died");
 
                         // Either:
                         // Pac-Man has some lives left: We thus start a new round
@@ -1363,7 +1373,7 @@ void PacmanGameModule::updateGameSprites()
             this->spritePacman->texture = this->texturePacmanFaceClosed;
         else if (this->gameState.freezeReason & (GameState::freezeReasonPacmanKilled)) {
             if (this->gameState.triggerPacmanKilled.isAfter(this, GameState::freezeFramesAfterPacmanKilled))
-                this->updateGameSpritePacmanDeath(this->gameState.triggerPacmanKilled.framesSince(this) - GameState::freezeFramesPacmanDeathSequence);
+                this->updateGameSpritePacmanDeath(this->gameState.triggerPacmanKilled.framesSince(this) - GameState::freezeFramesAfterPacmanKilled);
         } else
             this->updateGameSpritePacman(this->gameState.pacman.currentDir, this->gameState.pacman.animationFrame);
     }
@@ -1426,6 +1436,8 @@ void PacmanGameModule::updateGame()
     }
     if (this->gameState.triggerRoundStarted.isNow(this)) {
         this->gameState.freezeReason &= ~PacmanGameModule::GameState::freezeReasonReady;
+        if (debugFreeze)
+            puts("freeze remove ready");
 
         // This removes the "READY!" text
         this->setCellText({11, 20}, "      ");
@@ -1444,8 +1456,11 @@ void PacmanGameModule::updateGame()
 
     // We end the frozen state after a while if it was started because Pac-Man ate a ghost
     if (this->gameState.freezeReason & PacmanGameModule::GameState::freezeReasonAteGhost &&
-        this->gameState.triggerAteGhost.isExactlyAfter(this, PacmanGameModule::GameState::freezeFramesAfterGhostEaten))
+        this->gameState.triggerAteGhost.isExactlyAfter(this, PacmanGameModule::GameState::freezeFramesAfterGhostEaten)) {
         this->gameState.freezeReason &= ~PacmanGameModule::GameState::freezeReasonAteGhost;
+        if (debugFreeze)
+            puts("freeze remove ate ghost");
+    }
 
     // Play the sound of Pac-Man being dead if we need to
     if (this->gameState.triggerPacmanKilled.isExactlyAfter(this, PacmanGameModule::GameState::freezeFramesAfterPacmanKilled))
@@ -1460,7 +1475,9 @@ void PacmanGameModule::updateGame()
 
     if (this->gameState.triggerRoundWon.isNow(this)) {
         this->gameState.freezeReason |= GameState::freezeReasonWon;
-        this->gameState.triggerRoundStarted.setAfter(this, 4 * 60);
+        if (debugFreeze)
+            puts("freeze won");
+        this->gameState.triggerReady.setAfter(this, 4 * 60);
     }
     if (this->gameState.triggerGameOver.isNow(this)) {
         this->setCellText({9, 20}, "GAME  OVER", ICore::Color::red);
@@ -1513,7 +1530,7 @@ void PacmanGameModule::draw()
     }
 
     // Debug code to display every ghost's target
-    if (debugMode) {
+    if (debugTargets) {
         this->textHandler.drawText(".", 1, utils::posCellToPix(this->gameState.blinky->targetCell, 8), ICore::Color::red);
         this->textHandler.drawText(".", 1, utils::posCellToPix(this->gameState.pinky->targetCell, 8), ICore::Color::magenta);
         this->textHandler.drawText(".", 1, utils::posCellToPix(this->gameState.inky->targetCell, 8), ICore::Color::cyan);
