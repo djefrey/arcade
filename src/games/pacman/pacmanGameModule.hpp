@@ -438,6 +438,10 @@ class PacmanGameModule : public virtual IGameModule {
     } mode;
 
     void resetAllDraw();
+
+    GameState::Direction currentInputDirection = GameState::dirLeft;
+    void updateCurrentInputDirection();
+
     void updateIntro();
     void updateGame();
     void updateGameInit();
@@ -451,8 +455,6 @@ class PacmanGameModule : public virtual IGameModule {
     void updateGameGhostState(PacmanGameModule::GameState::Ghost *ghost);
     void updateGameGhostTarget(PacmanGameModule::GameState::Ghost *ghost);
     PacmanGameModule::GameState::Ghost::State updateGameGetGhostScatterOrChase();
-
-    GameState::Direction updateGameGetInputDirection(GameState::Direction defaultDirection);
 
     // Determine if we can move from a given position (in pixels) to a wanted direction.
     // allowCornering is for the purposes of the special feature given to Pac-Man which allows him to take a sort of diagonal shortcut around corners
@@ -496,7 +498,6 @@ class PacmanGameModule : public virtual IGameModule {
 
     // Ghost animation in a normal state
     void updateGameSpriteGhost(GameState::GhostType ghostType, GameState::Direction direction, std::uint64_t frame);
-
 public:
     void init(ICore *coreHandle) override;
     void update() override;

@@ -22,28 +22,28 @@ const std::unordered_map<IDisplayModule::Color, sf::Color> sfml::SFML_COLORS = {
     std::make_pair(IDisplayModule::Color::none, sf::Color::Transparent),
 };
 
-const std::unordered_map<IDisplayModule::Button, sf::Keyboard::Key> sfml::SFML_BUTTONS = {
-    std::make_pair(IDisplayModule::Button::Up, sf::Keyboard::W),
-    std::make_pair(IDisplayModule::Button::Left, sf::Keyboard::A),
-    std::make_pair(IDisplayModule::Button::Down, sf::Keyboard::S),
-    std::make_pair(IDisplayModule::Button::Right, sf::Keyboard::D),
+const std::unordered_map<sf::Keyboard::Key, IDisplayModule::Button> sfml::SFML_BUTTONS = {
+    std::make_pair(sf::Keyboard::W, IDisplayModule::Button::Up),
+    std::make_pair(sf::Keyboard::A, IDisplayModule::Button::Left),
+    std::make_pair(sf::Keyboard::S, IDisplayModule::Button::Down),
+    std::make_pair(sf::Keyboard::D, IDisplayModule::Button::Right),
 
-    std::make_pair(IDisplayModule::Button::X, sf::Keyboard::Left),
-    std::make_pair(IDisplayModule::Button::Y, sf::Keyboard::Up),
-    std::make_pair(IDisplayModule::Button::B, sf::Keyboard::Right),
-    std::make_pair(IDisplayModule::Button::A, sf::Keyboard::Down),
+    std::make_pair(sf::Keyboard::Left, IDisplayModule::Button::X),
+    std::make_pair(sf::Keyboard::Up, IDisplayModule::Button::Y),
+    std::make_pair(sf::Keyboard::Right, IDisplayModule::Button::B),
+    std::make_pair(sf::Keyboard::Down, IDisplayModule::Button::A),
 
-    std::make_pair(IDisplayModule::Button::L, sf::Keyboard::Q),
-    std::make_pair(IDisplayModule::Button::R, sf::Keyboard::E),
+    std::make_pair(sf::Keyboard::Q, IDisplayModule::Button::L),
+    std::make_pair(sf::Keyboard::E, IDisplayModule::Button::R),
 
-    std::make_pair(IDisplayModule::Button::Start, sf::Keyboard::C),
-    std::make_pair(IDisplayModule::Button::Select, sf::Keyboard::V),
+    std::make_pair(sf::Keyboard::C, IDisplayModule::Button::Start),
+    std::make_pair(sf::Keyboard::V, IDisplayModule::Button::Select),
 
-    std::make_pair(IDisplayModule::Button::F1, sf::Keyboard::F1),
-    std::make_pair(IDisplayModule::Button::F2, sf::Keyboard::F2),
-    std::make_pair(IDisplayModule::Button::F3, sf::Keyboard::F3),
-    std::make_pair(IDisplayModule::Button::F4, sf::Keyboard::F4),
-    std::make_pair(IDisplayModule::Button::F5, sf::Keyboard::F5),
-    std::make_pair(IDisplayModule::Button::F6, sf::Keyboard::F6),
-    std::make_pair(IDisplayModule::Button::F7, sf::Keyboard::F7),
+    std::make_pair(sf::Keyboard::F1, IDisplayModule::Button::F1),
+    std::make_pair(sf::Keyboard::F2, IDisplayModule::Button::F2),
+    std::make_pair(sf::Keyboard::F3, IDisplayModule::Button::F3),
+    std::make_pair(sf::Keyboard::F4, IDisplayModule::Button::F4),
+    std::make_pair(sf::Keyboard::F5, IDisplayModule::Button::F5),
+    std::make_pair(sf::Keyboard::F6, IDisplayModule::Button::F6),
+    std::make_pair(sf::Keyboard::F7, IDisplayModule::Button::F7),
 };

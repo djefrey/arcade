@@ -20,6 +20,7 @@ namespace sfml {
 
         std::unique_ptr<sf::RenderWindow> _window;
         std::unordered_map<std::string, sf::Font> _fonts;
+        std::unordered_map<IDisplayModule::Button, bool> _buttonsPressedThisFrame;
 
         bool _close = false;
         bool _leftMouseRelease = false;
@@ -57,5 +58,5 @@ namespace sfml {
     };
 
     extern const std::unordered_map<IDisplayModule::Color, sf::Color> SFML_COLORS;
-    extern const std::unordered_map<IDisplayModule::Button, sf::Keyboard::Key> SFML_BUTTONS;
+    extern const std::unordered_map<sf::Keyboard::Key, IDisplayModule::Button> SFML_BUTTONS;
 }

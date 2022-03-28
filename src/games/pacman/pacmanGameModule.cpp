@@ -688,19 +688,6 @@ bool PacmanGameModule::updateGameShouldPacmanMove()
     return true;
 }
 
-PacmanGameModule::GameState::Direction PacmanGameModule::updateGameGetInputDirection(PacmanGameModule::GameState::Direction defaultDirection)
-{
-    if (this->isButtonPressed(ICore::Button::Up) || this->isButtonPressed(ICore::Button::Y))
-        return PacmanGameModule::GameState::dirUp;
-    if (this->isButtonPressed(ICore::Button::Down) || this->isButtonPressed(ICore::Button::A))
-        return PacmanGameModule::GameState::dirDown;
-    if (this->isButtonPressed(ICore::Button::Right) || this->isButtonPressed(ICore::Button::B))
-        return PacmanGameModule::GameState::dirRight;
-    if (this->isButtonPressed(ICore::Button::Left) || this->isButtonPressed(ICore::Button::X))
-        return PacmanGameModule::GameState::dirLeft;
-    return defaultDirection;
-}
-
 bool PacmanGameModule::updateGameIsCellDot(ICore::Vector2u cellPosition)
 {
     auto cellThing = this->getCellDrawnThing(cellPosition);
@@ -1265,7 +1252,7 @@ void PacmanGameModule::updateGameCells()
 void PacmanGameModule::updateGameActors()
 {
     if (this->updateGameShouldPacmanMove()) {
-        const PacmanGameModule::GameState::Direction wantedDirection = this->updateGameGetInputDirection(this->gameState.pacman.currentDir);
+        const PacmanGameModule::GameState::Direction wantedDirection = this->currentInputDirection;
 
         // We look ahead to check if the direction we want is blocked
         if (this->updateGameCanMoveTo(this->gameState.pacman.position, wantedDirection, true))
@@ -1582,8 +1569,22 @@ void PacmanGameModule::updateGame()
     }
 }
 
+void PacmanGameModule::updateCurrentInputDirection()
+{
+    if (this->isButtonPressed(ICore::Button::Up) || this->isButtonPressed(ICore::Button::Y))
+        this->currentInputDirection = PacmanGameModule::GameState::dirUp;
+    if (this->isButtonPressed(ICore::Button::Down) || this->isButtonPressed(ICore::Button::A))
+        this->currentInputDirection = PacmanGameModule::GameState::dirDown;
+    if (this->isButtonPressed(ICore::Button::Right) || this->isButtonPressed(ICore::Button::B))
+        this->currentInputDirection = PacmanGameModule::GameState::dirRight;
+    if (this->isButtonPressed(ICore::Button::Left) || this->isButtonPressed(ICore::Button::X))
+        this->currentInputDirection = PacmanGameModule::GameState::dirLeft;
+}
+
 void PacmanGameModule::update()
 {
+    this->updateCurrentInputDirection();
+
     ++this->currentFrame;
     if (this->introState.triggerStart.isNow(this))
         this->mode = PacmanGameModule::Mode::intro;

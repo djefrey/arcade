@@ -66,6 +66,7 @@ void sfml::SFMLDisplay::update()
     _leftMouseRelease = false;
     _rightMouseRelease = false;
     _textInput.clear();
+    _buttonsPressedThisFrame.clear();
     while (_window->pollEvent(event)) {
         if (event.type == sf::Event::Closed)
             _close = true;
@@ -77,13 +78,19 @@ void sfml::SFMLDisplay::update()
             else if (event.mouseButton.button == sf::Mouse::Right)
                 _rightMouseRelease = true;
             _mousePos = (Vector2u) {event.mouseButton.x / _pixelsPerCell, event.mouseButton.y / _pixelsPerCell};
+        } else if (event.type == sf::Event::KeyPressed) {
+            auto displayButton = SFML_BUTTONS.find(event.key.code);
+
+            if (displayButton != SFML_BUTTONS.end())
+                _buttonsPressedThisFrame[displayButton->second] = true;
         }
     }
 }
 
 bool sfml::SFMLDisplay::isButtonPressed(Button button)
 {
-    return sf::Keyboard::isKeyPressed(SFML_BUTTONS.at(button));
+    auto it = _buttonsPressedThisFrame.find(button);
+    return it == _buttonsPressedThisFrame.end() ? false : it->second;
 }
 
 IDisplayModule::MouseButtonReleaseEvent sfml::SFMLDisplay::getMouseButtonReleaseEvent()
