@@ -273,7 +273,7 @@ void PacmanGameModule::setCellScoreFruit(PacmanGameModule::GameState::BonusFruit
         static_cast<int>(bonusFruit) >= 0 &&
         static_cast<int>(bonusFruit) < static_cast<int>(PacmanGameModule::GameState::BonusFruit::amountOfBonusFruits));
 
-    constexpr std::uint64_t mapFruitsToScore[] = {10, 30, 50, 70, 100, 200, 300, 500};
+    constexpr std::uint64_t mapFruitsToScore[] = {0, 10, 30, 50, 70, 100, 200, 300, 500};
 
     if (bonusFruit == PacmanGameModule::GameState::BonusFruit::none)
         this->setCellText({11, 20}, "    ");
