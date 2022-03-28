@@ -7,11 +7,11 @@
 
 #pragma once
 
-#include <map>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include "arcade-interface/IDisplayModule.hpp"
+#include <unordered_map>
 #include <optional>
 
 namespace sfml {
@@ -56,6 +56,6 @@ namespace sfml {
         std::uint32_t getPixelsPerCell() override;
     };
 
-    extern const std::map<IDisplayModule::Color, sf::Color> SFML_COLORS;
-    extern const std::map<IDisplayModule::Button, sf::Keyboard::Key> SFML_BUTTONS;
+    extern const std::unordered_map<IDisplayModule::Color, sf::Color> SFML_COLORS;
+    extern const std::unordered_map<IDisplayModule::Button, sf::Keyboard::Key> SFML_BUTTONS;
 }

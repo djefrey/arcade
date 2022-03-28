@@ -26,7 +26,7 @@ add_executable(arcade
   "src/core/coreImpl.cpp"
   "src/core/menuGame.cpp"
 )
-target_link_libraries(arcade dl)
+target_link_libraries(arcade dl stdc++fs)
 arcade_set_common_target_properties(arcade)
 
 add_library(arcade_pacman SHARED

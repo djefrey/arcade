@@ -10,7 +10,7 @@
 #include <SFML/Window/Keyboard.hpp>
 #include "sfmlDisplay.hpp"
 
-const std::map<IDisplayModule::Color, sf::Color> sfml::SFML_COLORS = {
+const std::unordered_map<IDisplayModule::Color, sf::Color> sfml::SFML_COLORS = {
     std::make_pair(IDisplayModule::Color::red, sf::Color::Red),
     std::make_pair(IDisplayModule::Color::green, sf::Color::Green),
     std::make_pair(IDisplayModule::Color::blue, sf::Color::Blue),
@@ -22,7 +22,7 @@ const std::map<IDisplayModule::Color, sf::Color> sfml::SFML_COLORS = {
     std::make_pair(IDisplayModule::Color::none, sf::Color::Transparent),
 };
 
-const std::map<IDisplayModule::Button, sf::Keyboard::Key> sfml::SFML_BUTTONS = {
+const std::unordered_map<IDisplayModule::Button, sf::Keyboard::Key> sfml::SFML_BUTTONS = {
     std::make_pair(IDisplayModule::Button::Up, sf::Keyboard::W),
     std::make_pair(IDisplayModule::Button::Left, sf::Keyboard::A),
     std::make_pair(IDisplayModule::Button::Down, sf::Keyboard::S),
