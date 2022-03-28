@@ -26,7 +26,7 @@ add_executable(arcade
   "src/core/coreImpl.cpp"
   "src/core/menuGame.cpp"
 )
-target_link_libraries(arcade dl stdc++fs)
+target_link_libraries(arcade dl stdc++fs) # Required on old versions of glibc and GCC
 arcade_set_common_target_properties(arcade)
 
 add_library(arcade_pacman SHARED
@@ -52,4 +52,5 @@ add_library(arcade_sfml SHARED
   "src/graphics/sfml/sfmlConstants.cpp"
 )
 target_link_libraries(arcade_sfml sfml-graphics sfml-system sfml-window)
+target_link_libraries(arcade_sfml stdc++fs) # Required on old versions of GCC
 arcade_set_common_target_properties(arcade_sfml)
