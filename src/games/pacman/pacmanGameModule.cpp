@@ -1529,25 +1529,30 @@ void PacmanGameModule::updateGame()
 
     // This activates the bonus fruit
     if (this->gameState.triggerActivateBonusFruit.isNow(this))
-        this->gameState.activeBonusFruit = PacmanGameModule::GameState::getLevelInformation(this->gameState.currentRound).bonusFruit;
+        this->gameState.activeBonusFruit = GameState::getLevelInformation(this->gameState.currentRound).bonusFruit;
     if (this->gameState.triggerActivateBonusFruit.isExactlyAfter(this, 10 * 60)) // Bonus fruits disappear after 10 seconds
-        this->gameState.activeBonusFruit = PacmanGameModule::GameState::BonusFruit::none;
+        this->gameState.activeBonusFruit = GameState::BonusFruit::none;
 
     // If we're finishing up the frightened state, play the siren again
-    if (this->gameState.triggerAtePill.isExactlyAfter(this, PacmanGameModule::GameState::getLevelInformation(this->gameState.currentLives).afraidFrames))
+    if (this->gameState.triggerAtePill.isExactlyAfter(this, GameState::getLevelInformation(this->gameState.currentLives).afraidFrames) &&
+        !(this->gameState.freezeReason & (GameState::freezeReasonWon | GameState::freezeReasonReady)))
         this->soundHandler.startSound("assets/pacman/siren-1.wav", 1, true);
 
     // We end the frozen state after a while if it was started because Pac-Man ate a ghost
-    if (this->gameState.freezeReason & PacmanGameModule::GameState::freezeReasonAteGhost &&
-        this->gameState.triggerAteGhost.isExactlyAfter(this, PacmanGameModule::GameState::freezeFramesAfterGhostEaten)) {
-        this->gameState.freezeReason &= ~PacmanGameModule::GameState::freezeReasonAteGhost;
+    if (this->gameState.freezeReason & GameState::freezeReasonAteGhost &&
+        this->gameState.triggerAteGhost.isExactlyAfter(this, GameState::freezeFramesAfterGhostEaten)) {
+        this->gameState.freezeReason &= ~GameState::freezeReasonAteGhost;
         if (debugFreeze)
             puts("freeze remove ate ghost");
     }
 
     // Play the sound of Pac-Man being dead if we need to
-    if (this->gameState.triggerPacmanKilled.isExactlyAfter(this, PacmanGameModule::GameState::freezeFramesAfterPacmanKilled))
+    if (this->gameState.triggerPacmanKilled.isExactlyAfter(this, GameState::freezeFramesAfterPacmanKilled))
         this->soundHandler.startSound("assets/pacman/death-1.wav", 2);
+    if (this->gameState.triggerPacmanKilled.isExactlyAfter(this, GameState::freezeFramesAfterPacmanKilled + 75))
+        this->soundHandler.startSound("assets/pacman/death-2.wav", 2);
+    if (this->gameState.triggerPacmanKilled.isExactlyAfter(this, GameState::freezeFramesAfterPacmanKilled + 86))
+        this->soundHandler.startSound("assets/pacman/death-2.wav", 2);
 
     if (this->gameState.freezeReason == 0)
         this->updateGameActors();
