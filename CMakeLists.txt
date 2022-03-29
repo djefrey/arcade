@@ -35,6 +35,15 @@ add_library(arcade_pacman SHARED
 )
 arcade_set_common_target_properties(arcade_pacman)
 
+add_library(arcade_nibbler SHARED
+  "src/games/nibbler/main.cpp"
+  "src/games/nibbler/nibblerGameModule.cpp"
+  "src/games/nibbler/arena.cpp"
+  "src/games/nibbler/textures.cpp"
+  "src/games/nibbler/nibblerUtils.cpp"
+)
+arcade_set_common_target_properties(arcade_nibbler)
+
 add_library(arcade_ncurses SHARED
   "src/graphics/ncurses/main.cpp"
 )
