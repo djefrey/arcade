@@ -15,7 +15,7 @@ namespace utils {
         return {cellPosition.x * pixelsPerCell, cellPosition.y * pixelsPerCell};
     }
 
-    ICore::Vector2u getSquareCenter(ICore::Vector2u squareTopLeftPos, ICore::Vector2u squareSize)
+    static ICore::Vector2u getSquareCenter(ICore::Vector2u squareTopLeftPos, ICore::Vector2u squareSize)
     {
         return {squareTopLeftPos.x + ((squareTopLeftPos.x - squareSize.x) / 2), squareTopLeftPos.y + ((squareTopLeftPos.y - squareSize.y) / 2)};
     }
