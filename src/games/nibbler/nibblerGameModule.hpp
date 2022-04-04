@@ -16,7 +16,7 @@
 class NibblerGameModule : public virtual IGameModule {
     using Vector2u = IDisplayModule::Vector2u;
 
-    const Vector2u ARENA_SIZE = {42, 32};
+    const Vector2u ARENA_SIZE = {16, 16};
 
     ICore *_coreHandle = nullptr;
     Textures _textures;
@@ -31,8 +31,10 @@ class NibblerGameModule : public virtual IGameModule {
     uint _tick = 0;
     uint _score = 0;
 
-    void loadLevel();
-    void reloadGame();
+    void reloadGame(const std::string &level);
+    void loadLevel(const std::string &level);
+    void readLevelChar(uint32_t x, uint32_t y, char c);
+
 
     void moveSnake();
     void checkCollision();

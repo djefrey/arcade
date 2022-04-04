@@ -11,6 +11,7 @@
 #include "nibblerGameModule.hpp"
 #include "utils/positionConverters.hpp"
 #include "utils/vector2u.hpp"
+#include "levels.hpp"
 
 void NibblerGameModule::init(ICore *coreHandle)
 {
@@ -22,46 +23,51 @@ void NibblerGameModule::init(ICore *coreHandle)
 
     _textures.init(coreHandle);
 
-    reloadGame();
+    reloadGame(LEVEL_0);
 }
 
-void NibblerGameModule::reloadGame()
+void NibblerGameModule::reloadGame(const std::string &level)
 {
     _tick = 0;
     _lastMoveTick = 0;
     _score = 0;
 
-    loadLevel();
+    loadLevel(level);
 }
 
-void NibblerGameModule::loadLevel()
+void NibblerGameModule::loadLevel(const std::string &level)
 {
-    constexpr Vector2u startingPos[4] = {
-        {5, 5},
-        {4, 5},
-        {3, 5},
-        {2, 5}
+    const Vector2u startingPos[4] = {
+        {10, 8}, {9, 8}, {8, 8}, {7, 8},
     };
-    constexpr nibbler::Direction startingDir[4] = {
-        nibbler::Direction::RIGHT,
-        nibbler::Direction::RIGHT,
-        nibbler::Direction::RIGHT,
-        nibbler::Direction::RIGHT
+    const nibbler::Direction startingDir[4] = {
+        nibbler::RIGHT, nibbler::RIGHT, nibbler::RIGHT, nibbler::RIGHT,
     };
-
-    _arena.init(ARENA_SIZE.x, ARENA_SIZE.y);
-    _arena.addFruitSpawn({10, 10});
-    _arena.addFruitSpawn({20, 16});
-    _arena.addFruitSpawn({5, 22});
-    _arena.addFruitSpawn({26, 14});
 
     _snake.clear();
     _snakeMove.clear();
+    _arena.init(ARENA_SIZE.x, ARENA_SIZE.y);
     for (int i = 0; i < 4; i++) {
         _snake.push_back(startingPos[i]);
         _snakeMove.push_back(startingDir[i]);
     }
-    _actualDir = nibbler::Direction::RIGHT;
+    for (uint32_t y = 0; y < ARENA_SIZE.y; y++) {
+        for (uint32_t x = 0; x < ARENA_SIZE.x; x++) {
+            readLevelChar(x, y, level[x + y * ARENA_SIZE.x]);
+        }
+    }
+    _actualDir = startingDir[0];
+}
+
+void NibblerGameModule::readLevelChar(uint32_t x, uint32_t y, char c)
+{
+    if (c == 'X') {
+        _arena.setCellAt(x, y, Arena::Cell::WALL);
+        return;
+    }
+    _arena.setCellAt(x, y, Arena::Cell::EMPTY);
+    if (c == 'o')
+        _arena.addFruitSpawn({x, y});
 }
 
 void NibblerGameModule::update()
@@ -98,13 +104,13 @@ void NibblerGameModule::checkCollision()
     Arena::Cell cell = _arena.getCellAt(head.x, head.y);
 
     if (cell == Arena::Cell::WALL || std::find(++_snake.begin(), _snake.end(), head) != _snake.end()) {
-        reloadGame();
+        reloadGame(LEVEL_0);
     } else if (cell == Arena::Cell::FRUIT) {
         if (growSnake()) {
             _arena.spawnFruit();
             _arena.setCellAt(head.x, head.y, Arena::Cell::EMPTY);
         } else
-            reloadGame();
+            reloadGame(LEVEL_0);
     }
 }
 

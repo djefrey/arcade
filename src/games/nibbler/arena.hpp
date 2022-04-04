@@ -16,9 +16,9 @@ class Arena {
 
     public:
     enum class Cell : uint8_t {
-        EMPTY = 0,
-        WALL = 1,
-        FRUIT = 2,
+        EMPTY = ' ',
+        WALL = 'X',
+        FRUIT = 'o',
     };
 
     void init(uint32_t width, uint32_t height);

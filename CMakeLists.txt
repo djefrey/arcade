@@ -39,6 +39,7 @@ add_library(arcade_nibbler SHARED
   "src/games/nibbler/main.cpp"
   "src/games/nibbler/nibblerGameModule.cpp"
   "src/games/nibbler/arena.cpp"
+  "src/games/nibbler/levels.cpp"
   "src/games/nibbler/textures.cpp"
   "src/games/nibbler/nibblerUtils.cpp"
 )
