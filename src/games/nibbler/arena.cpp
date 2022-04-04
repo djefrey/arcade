@@ -15,7 +15,7 @@ void Arena::init(uint32_t width, uint32_t height)
 {
     _width = width;
     _height = height;
-    _cells = std::unique_ptr<Cell>(new Cell[width * height]);
+    _cells = std::make_unique<Cell[]>(width * height);
     _fruitSpawns.clear();
 
     for (std::size_t i = 0; i < width * height; i++)

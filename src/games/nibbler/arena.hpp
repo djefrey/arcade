@@ -37,6 +37,6 @@ class Arena {
     uint32_t _width;
     uint32_t _height;
 
-    std::unique_ptr<Cell> _cells;
+    std::unique_ptr<Cell[]> _cells;
     std::vector<Vector2u> _fruitSpawns;
 };
