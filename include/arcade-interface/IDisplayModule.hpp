@@ -18,7 +18,6 @@ public:
     };
 
     // All the colors a cell can be. Can't really do more than this considering this is the minimum set that ncurses implements, and adding anymore would make this a ridiculous mess
-    // Note that "none" means no color at all (i.e. the character or background of a sprite are not drawn, for example)
     enum class Color {
         black,
         red,
@@ -28,7 +27,6 @@ public:
         magenta,
         cyan,
         white,
-        none,
     };
 
     // This MUST not be 0. It is the width and height of a call in the game

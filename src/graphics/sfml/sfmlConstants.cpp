@@ -19,7 +19,6 @@ const std::unordered_map<IDisplayModule::Color, sf::Color> sfml::SFML_COLORS = {
     std::make_pair(IDisplayModule::Color::cyan, sf::Color::Cyan),
     std::make_pair(IDisplayModule::Color::black, sf::Color::Black),
     std::make_pair(IDisplayModule::Color::white, sf::Color::White),
-    std::make_pair(IDisplayModule::Color::none, sf::Color::Transparent),
 };
 
 const std::unordered_map<sf::Keyboard::Key, IDisplayModule::Button> sfml::SFML_BUTTONS = {
