@@ -9,19 +9,19 @@
 
 const std::string LEVEL_EMPTY =
     "XXXXXXXXXXXXXXXX" \
+    "X       o      X" \
     "X              X" \
+    "X    o      o  X" \
     "X              X" \
+    "X      o       X" \
+    "X o      o     X" \
     "X              X" \
-    "X              X" \
-    "X              X" \
-    "X              X" \
-    "X              X" \
-    "X              X" \
-    "X              X" \
-    "X              X" \
-    "X              X" \
-    "X              X" \
-    "X              X" \
+    "X     o        X" \
+    "X         o    X" \
+    "X   o          X" \
+    "X      o       X" \
+    "X          o   X" \
+    "X    o         X" \
     "X              X" \
     "XXXXXXXXXXXXXXXX";
 

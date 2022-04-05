@@ -14,12 +14,12 @@ void Textures::init(ICore *coreHandler)
     this->snakeHeadLeft = coreHandler->loadTexture("./assets/nibbler/snake-head-left.png", '<', ICore::Color::white, ICore::Color::red, 8, 8);
     this->snakeHeadRight = coreHandler->loadTexture("./assets/nibbler/snake-head-right.png", '>', ICore::Color::white, ICore::Color::red, 8, 8);
 
-    this->snakeBodyHorizontal = coreHandler->loadTexture("./assets/nibbler/snake-body-horizonthal.png", '-', ICore::Color::white, ICore::Color::black, 8, 8);
-    this->snakeBodyVertical = coreHandler->loadTexture("./assets/nibbler/snake-body-vertical.png", '|', ICore::Color::white, ICore::Color::black, 8, 8);
-    this->snakeBodyCornerUpLeft = coreHandler->loadTexture("./assets/nibbler/snake-body-upleft.png", '/', ICore::Color::white, ICore::Color::black, 8, 8);
-    this->snakeBodyCornerUpRight = coreHandler->loadTexture("./assets/nibbler/snake-body-upright.png", '\\', ICore::Color::white, ICore::Color::black, 8, 8);
-    this->snakeBodyCornerDownLeft = coreHandler->loadTexture("./assets/nibbler/snake-body-downleft.png", '\\', ICore::Color::white, ICore::Color::black, 8, 8);
-    this->snakeBodyCornerDownRight = coreHandler->loadTexture("./assets/nibbler/snake-body-downright.png", '/', ICore::Color::white, ICore::Color::black, 8, 8);
+    this->snakeBodyHorizontal = coreHandler->loadTexture("./assets/nibbler/snake-body-horizonthal.png", '-', ICore::Color::white, ICore::Color::red, 8, 8);
+    this->snakeBodyVertical = coreHandler->loadTexture("./assets/nibbler/snake-body-vertical.png", '|', ICore::Color::white, ICore::Color::red, 8, 8);
+    this->snakeBodyCornerUpLeft = coreHandler->loadTexture("./assets/nibbler/snake-body-upleft.png", '/', ICore::Color::white, ICore::Color::red, 8, 8);
+    this->snakeBodyCornerUpRight = coreHandler->loadTexture("./assets/nibbler/snake-body-upright.png", '\\', ICore::Color::white, ICore::Color::red, 8, 8);
+    this->snakeBodyCornerDownLeft = coreHandler->loadTexture("./assets/nibbler/snake-body-downleft.png", '\\', ICore::Color::white, ICore::Color::red, 8, 8);
+    this->snakeBodyCornerDownRight = coreHandler->loadTexture("./assets/nibbler/snake-body-downright.png", '/', ICore::Color::white, ICore::Color::red, 8, 8);
 
     this->snakeTailUp = coreHandler->loadTexture("./assets/nibbler/snake-tail-up.png", ',', ICore::Color::white, ICore::Color::red, 8, 8);
     this->snakeTailDown = coreHandler->loadTexture("./assets/nibbler/snake-tail-down.png", '\'', ICore::Color::white, ICore::Color::red, 8, 8);
@@ -33,5 +33,5 @@ void Textures::init(ICore *coreHandler)
     this->wallCornerDownLeft = coreHandler->loadTexture("./assets/nibbler/wall-corner-downleft.png", '\\', ICore::Color::white, ICore::Color::black, 8, 8);
     this->wallCornerDownRight = coreHandler->loadTexture("./assets/nibbler/wall-corner-downright.png", '/', ICore::Color::white, ICore::Color::black, 8, 8);
 
-    this->fruit = coreHandler->loadTexture("./assets/nibbler/fruit.png", '#', ICore::Color::yellow, ICore::Color::black, 8, 8);
+    this->fruit = coreHandler->loadTexture("./assets/nibbler/fruit.png", '#', ICore::Color::black, ICore::Color::yellow, 8, 8);
 }
