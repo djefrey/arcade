@@ -146,7 +146,8 @@ void CoreImpl::changeGameModule(std::unique_ptr<IGameModule> gameModule)
 
 void CoreImpl::changeDisplayModuleToCurrentlySelected()
 {
-    this->changeDisplayModule(this->getDisplayLibraries().at(this->currentlySelectedDisplay).second());
+    if (!this->isInMenu)
+        this->changeDisplayModule(this->getDisplayLibraries().at(this->currentlySelectedDisplay).second());
 }
 
 void CoreImpl::changeGameModuleToCurrentlySelected()
@@ -193,6 +194,7 @@ bool CoreImpl::shouldExitNow()
 
 void CoreImpl::runMenu()
 {
+    this->isInMenu = true;
     auto menu = std::make_unique<MenuGame>();
 
     this->menuNotifyIsFinished = false;
@@ -205,6 +207,7 @@ void CoreImpl::runMenu()
         this->currentDisplayModule->display();
         this->doSleep();
     }
+    this->isInMenu = false;
     if (this->menuNotifyIsFinished)
         this->changeGameModuleToCurrentlySelected(); // (note: this is why we can't just do this in the game, as that would result in a use-after-free)
 }

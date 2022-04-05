@@ -28,6 +28,7 @@ class CoreImpl : public virtual ICore {
     std::vector<std::pair<dl::Handle, std::unique_ptr<IGameModule>(*)()>> gameLibraries;
     std::vector<std::pair<dl::Handle, std::unique_ptr<IDisplayModule>(*)()>> displayLibraries;
     std::unique_ptr<IDisplayModule> currentDisplayModule;
+    bool isInMenu = false;
     std::unique_ptr<IGameModule> currentGameModule;
 
     unsigned framerate;
