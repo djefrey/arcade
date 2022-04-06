@@ -38,3 +38,7 @@ void *dl::Handle::lookupSymbol(std::string_view symbolName)
     return this->updateError() ? symbolAddr : nullptr;
 }
 
+void dl::Handle::close()
+{
+    this->rawHandle.reset();
+}

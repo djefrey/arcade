@@ -37,6 +37,7 @@ namespace dl {
 
         void load(std::string file_name);
         void *lookupSymbol(std::string_view symbolName);
+        void close();
         
         dl::ResolvePolicyTime resolvePolicyTime = dl::ResolvePolicyTime::now;
         dl::ResolvePolicyOption resolvePolicyOptions = dl::ResolvePolicyOption::none;
