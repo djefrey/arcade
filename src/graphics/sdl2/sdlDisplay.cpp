@@ -40,6 +40,7 @@ void sdl::SDLDisplay::openWindow(Vector2u size)
     _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
     if (_renderer == nullptr)
         throw std::runtime_error("Could not create renderer");
+    SDL_RenderSetLogicalSize(_renderer, size.x, size.y);
 }
 
 void sdl::SDLDisplay::update()
