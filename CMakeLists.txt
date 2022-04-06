@@ -52,7 +52,11 @@ arcade_set_common_target_properties(arcade_ncurses)
 
 add_library(arcade_sdl2 SHARED
   "src/graphics/sdl2/main.cpp"
+  "src/graphics/sdl2/sdlDisplay.cpp"
+  "src/graphics/sdl2/sdlRawTexture.cpp"
+  "src/graphics/sdl2/sdlConstants.cpp"
 )
+target_link_libraries(arcade_sdl2 SDL2 SDL2_image SDL2_ttf)
 arcade_set_common_target_properties(arcade_sdl2)
 
 add_library(arcade_sfml SHARED

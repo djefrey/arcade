@@ -9,16 +9,12 @@
 #include "sdlDisplay.hpp"
 #include "sdlRawTexture.hpp"
 
-sdl::SDLRawGraphicTexture::SDLRawGraphicTexture(const std::string &filename, SDL_Renderer *renderer)
+sdl::SDLRawGraphicTexture::SDLRawGraphicTexture(const std::string &filename, IDisplayModule::Vector2u size, SDL_Renderer *renderer)
+    : _size(size)
 {
     _texture = IMG_LoadTexture(renderer, filename.c_str());
     if (_texture == nullptr)
         throw std::runtime_error("Could not load texture " + filename);
-}
-
-SDL_Texture *sdl::SDLRawGraphicTexture::getTexture() const
-{
-    return _texture;
 }
 
 sdl::SDLRawGraphicTexture::~SDLRawGraphicTexture()
@@ -27,22 +23,18 @@ sdl::SDLRawGraphicTexture::~SDLRawGraphicTexture()
 }
 
 sdl::SDLRawASCIITexture::SDLRawASCIITexture(char c, Color textColor, Color bkgdColor, uint size, TTF_Font *font, SDL_Renderer *renderer)
+    : _size(size)
 {
     SDL_Color sdlTextColor = sdl::SDL_COLORS.at(textColor);
     SDL_Color sdlBkgdColor = sdl::SDL_COLORS.at(bkgdColor);
 
     TTF_SetFontSize(font, size);
     _surface = TTF_RenderGlyph32_Shaded(font, c, sdlTextColor, sdlBkgdColor);
-    if (_texture == nullptr)
+    if (_surface == nullptr)
         throw std::runtime_error("Could not create surface '" + std::to_string(c) + "'");
     _texture = SDL_CreateTextureFromSurface(renderer, _surface);
     if (_texture == nullptr)
         throw std::runtime_error("Could not create texture '" + std::to_string(c) + "'");
-}
-
-SDL_Texture *sdl::SDLRawASCIITexture::getTexture() const
-{
-    return _texture;
 }
 
 sdl::SDLRawASCIITexture::~SDLRawASCIITexture()

@@ -10,32 +10,87 @@
 #include "sdlDisplay.hpp"
 #include "sdlRawTexture.hpp"
 
-void sdl::SDLDisplay::openWindow(Vector2u size)
+sdl::SDLDisplay::SDLDisplay()
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
         throw std::runtime_error("Could not init SDL");
-    _window = std::unique_ptr<SDL_Window>(SDL_CreateWindow("Arcade", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, size.x, size.y, 0));
-    if (_window.get() == nullptr)
-        throw std::runtime_error("Could not create window");
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-    _renderer = std::unique_ptr<SDL_Renderer>(SDL_CreateRenderer(_window.get(), -1, SDL_RENDERER_ACCELERATED));
-    if (_renderer.get() == nullptr)
-        throw std::runtime_error("Could not create renderer");
     if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) == 0)
         throw std::runtime_error("Could not init IMG module");
     if (TTF_Init() == -1)
         throw std::runtime_error("Could not init TTF module");
 }
 
+sdl::SDLDisplay::~SDLDisplay()
+{
+    SDL_DestroyRenderer(_renderer);
+    SDL_DestroyWindow(_window);
+    for (std::pair<const std::string, TTF_Font*> pair : _fonts)
+        TTF_CloseFont(pair.second);
+}
+
+void sdl::SDLDisplay::openWindow(Vector2u size)
+{
+    _window = SDL_CreateWindow("Arcade", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, size.x, size.y, SDL_WINDOW_RESIZABLE);
+    if (_window == nullptr)
+        throw std::runtime_error("Could not create window");
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
+    if (_renderer == nullptr)
+        throw std::runtime_error("Could not create renderer");
+}
+
+void sdl::SDLDisplay::update()
+{
+    SDL_Event event;
+
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+            case SDL_QUIT:
+                _close = true;
+                break;
+            case SDL_TEXTINPUT:
+                _textInput = std::string(event.text.text);
+                break;
+        }
+    }
+}
+
+bool sdl::SDLDisplay::isButtonPressed(IDisplayModule::Button button)
+{
+    const uint8_t *keys = SDL_GetKeyboardState(NULL);
+
+    return keys[SDL_KEYS.at(button)];
+}
+
+IDisplayModule::MouseButtonReleaseEvent sdl::SDLDisplay::getMouseButtonReleaseEvent()
+{
+    return IDisplayModule::MouseButtonReleaseEvent{};
+}
+
+void sdl::SDLDisplay::startTextInput()
+{
+    SDL_StartTextInput();
+}
+
+std::string sdl::SDLDisplay::getTextInput()
+{
+    return _textInput;
+}
+
+void sdl::SDLDisplay::endTextInput()
+{
+    SDL_StopTextInput();
+}
+
 std::unique_ptr<IDisplayModule::RawTexture> sdl::SDLDisplay::loadTexture(const std::string &filename, char character, Color characterColor, Color backgroundColor, std::size_t width, std::size_t height)
 {
-    (void)height;
-
     std::filesystem::path filenamePath{filename};
+
+    (void) height;
     if (filenamePath.extension() == ".png")
-        return std::make_unique<SDLRawGraphicTexture>(filename);
+        return std::make_unique<SDLRawGraphicTexture>(filename, Vector2u{(uint) width, (uint) height}, _renderer);
     if (filenamePath.extension() == ".ttf")
-        return std::make_unique<SDLRawASCIITexture>(character, characterColor, backgroundColor, width, this->getFont(filename));
+        return std::make_unique<SDLRawASCIITexture>(character, characterColor, backgroundColor, width, this->getFont(filename), _renderer);
     throw std::runtime_error("Tried to load texture from invalid file !");
 }
 
@@ -43,11 +98,34 @@ void sdl::SDLDisplay::clearScreen(Color color)
 {
     SDL_Color sdlColor = SDL_COLORS.at(color);
 
-    SDL_SetRenderDrawColor(_renderer.get(), sdlColor.r, sdlColor.g, sdlColor.b, sdlColor.a);
-    SDL_RenderClear(_renderer.get());
+    SDL_SetRenderDrawColor(_renderer, sdlColor.r, sdlColor.g, sdlColor.b, sdlColor.a);
+    SDL_RenderClear(_renderer);
+}
+
+void sdl::SDLDisplay::renderSprite(IDisplayModule::Sprite sprite)
+{
+    sdl::ASDLRawTexture *texture = dynamic_cast<ASDLRawTexture*>(sprite.texture);
+    SDL_Texture *sdlTexture = texture->getTexture();
+    Vector2u size = texture->getSize();
+    SDL_Rect dest = {(int) sprite.rawPixelPosition.x, (int) sprite.rawPixelPosition.y, (int) size.x, (int) size.y};
+
+    SDL_RenderCopy(_renderer, sdlTexture, NULL, &dest);
 }
 
 void sdl::SDLDisplay::display()
 {
-    SDL_RenderPresent(_renderer.get());
+    SDL_RenderPresent(_renderer);
+}
+
+TTF_Font *sdl::SDLDisplay::getFont(const std::string &filepath)
+{
+    TTF_Font *font;
+
+    if (_fonts.find(filepath) != _fonts.end())
+        return _fonts.at(filepath);
+    font = TTF_OpenFont(filepath.c_str(), 25);
+    if (font == nullptr)
+        throw std::runtime_error("Could not load font " + filepath);
+    _fonts.insert(std::make_pair(filepath, font));
+    return font;
 }
