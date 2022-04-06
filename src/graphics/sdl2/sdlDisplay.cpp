@@ -24,7 +24,7 @@ sdl::SDLDisplay::~SDLDisplay()
 {
     SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_window);
-    for (std::pair<const std::string, TTF_Font*> pair : _fonts)
+    for (auto &pair : _fonts)
         TTF_CloseFont(pair.second);
 }
 
@@ -90,7 +90,7 @@ std::unique_ptr<IDisplayModule::RawTexture> sdl::SDLDisplay::loadTexture(const s
     if (filenamePath.extension() == ".png")
         return std::make_unique<SDLRawGraphicTexture>(filename, Vector2u{(uint) width, (uint) height}, _renderer);
     if (filenamePath.extension() == ".ttf")
-        return std::make_unique<SDLRawASCIITexture>(character, characterColor, backgroundColor, width, this->getFont(filename), _renderer);
+        return std::make_unique<SDLRawASCIITexture>(character, characterColor, backgroundColor, width, this->getFont(filename, width), _renderer);
     throw std::runtime_error("Tried to load texture from invalid file !");
 }
 
@@ -117,15 +117,16 @@ void sdl::SDLDisplay::display()
     SDL_RenderPresent(_renderer);
 }
 
-TTF_Font *sdl::SDLDisplay::getFont(const std::string &filepath)
+TTF_Font *sdl::SDLDisplay::getFont(const std::string &filepath, std::size_t size)
 {
     TTF_Font *font;
+    auto findResult = _fonts.find({filepath, size});
 
-    if (_fonts.find(filepath) != _fonts.end())
-        return _fonts.at(filepath);
-    font = TTF_OpenFont(filepath.c_str(), 25);
+    if (findResult != _fonts.end())
+        return findResult->second;
+    font = TTF_OpenFont(filepath.c_str(), size);
     if (font == nullptr)
         throw std::runtime_error("Could not load font " + filepath);
-    _fonts.insert(std::make_pair(filepath, font));
+    _fonts.insert({{filepath, size}, font});
     return font;
 }

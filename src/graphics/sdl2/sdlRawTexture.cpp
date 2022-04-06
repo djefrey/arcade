@@ -28,8 +28,7 @@ sdl::SDLRawASCIITexture::SDLRawASCIITexture(char c, Color textColor, Color bkgdC
     SDL_Color sdlTextColor = sdl::SDL_COLORS.at(textColor);
     SDL_Color sdlBkgdColor = sdl::SDL_COLORS.at(bkgdColor);
 
-    TTF_SetFontSize(font, size);
-    _surface = TTF_RenderGlyph32_Shaded(font, c, sdlTextColor, sdlBkgdColor);
+    _surface = TTF_RenderGlyph_Shaded(font, c, sdlTextColor, sdlBkgdColor);
     if (_surface == nullptr)
         throw std::runtime_error("Could not create surface '" + std::to_string(c) + "'");
     _texture = SDL_CreateTextureFromSurface(renderer, _surface);

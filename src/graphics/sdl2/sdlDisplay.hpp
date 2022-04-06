@@ -20,12 +20,27 @@ namespace sdl {
 
         SDL_Window *_window = nullptr;
         SDL_Renderer *_renderer = nullptr;
-        std::unordered_map<std::string, TTF_Font*> _fonts;
+        struct FontKey {
+            std::string filename;
+            std::size_t size;
+
+            bool operator==(const FontKey &other) const
+            {
+                return std::tie(this->filename, this->size) == std::tie(other.filename, other.size);
+            }
+        };
+        struct HashFontKey {
+            std::size_t operator()(const FontKey &key) const
+            {
+                return std::hash<std::string>()(key.filename) ^ std::hash<std::size_t>()(key.size);
+            }
+        };
+        std::unordered_map<FontKey, TTF_Font *, HashFontKey> _fonts;
 
         bool _close = false;
         std::string _textInput;
 
-        public:
+    public:
         SDLDisplay();
         ~SDLDisplay();
 
@@ -50,8 +65,8 @@ namespace sdl {
         void setPixelsPerCell(std::uint32_t pixelsPerCell) { _pixelsPerCell = pixelsPerCell; };
         std::uint32_t getPixelsPerCell() { return _pixelsPerCell; };
 
-        private:
-        TTF_Font *getFont(const std::string &filepath);
+    private:
+        TTF_Font *getFont(const std::string &filepath, std::size_t size);
     };
 
     extern const std::unordered_map<IDisplayModule::Color, SDL_Color> SDL_COLORS;
