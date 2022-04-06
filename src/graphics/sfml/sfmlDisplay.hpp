@@ -33,8 +33,8 @@ namespace sfml {
         sf::Font &getFont(const std::string &fontFilename);
 
     public:
-        SFMLDisplay();
-        ~SFMLDisplay() = default;
+        SFMLDisplay() = default;
+        ~SFMLDisplay();
 
         std::unique_ptr<IDisplayModule::RawTexture> loadTexture(const std::string &filename, char character, IDisplayModule::Color characterColor, IDisplayModule::Color backgroundColor, std::size_t width, std::size_t height) override;
 

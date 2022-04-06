@@ -11,8 +11,9 @@
 #include <filesystem>
 #include <stdexcept>
 
-sfml::SFMLDisplay::SFMLDisplay()
+sfml::SFMLDisplay::~SFMLDisplay()
 {
+    _window->close();
 }
 
 void sfml::SFMLDisplay::openWindow(Vector2u size)

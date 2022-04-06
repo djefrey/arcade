@@ -22,10 +22,11 @@ sdl::SDLDisplay::SDLDisplay()
 
 sdl::SDLDisplay::~SDLDisplay()
 {
+    for (std::pair<const std::string, TTF_Font*> pair : _fonts)
+        TTF_CloseFont(pair.second);
     SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_window);
-    for (auto &pair : _fonts)
-        TTF_CloseFont(pair.second);
+    SDL_Quit();
 }
 
 void sdl::SDLDisplay::openWindow(Vector2u size)
