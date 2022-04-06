@@ -10,9 +10,12 @@
 #include "sfmlRawTexture.hpp"
 #include <filesystem>
 #include <stdexcept>
+#include <X11/Xlib.h>
+#undef None // wtf is X11 smoking with these bullshit #defines
 
 sfml::SFMLDisplay::SFMLDisplay()
 {
+    XInitThreads(); // This is to fix a quite complicated bug (which took me so long to solve, gods...). See https://github.com/SFML/SFML/issues/2060 for more details on this.
 }
 
 void sfml::SFMLDisplay::openWindow(Vector2u size)
