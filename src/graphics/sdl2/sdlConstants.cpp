@@ -16,7 +16,6 @@ const std::unordered_map<IDisplayModule::Color, SDL_Color> sdl::SDL_COLORS = {
     std::make_pair(IDisplayModule::Color::cyan,    SDL_Color{  0, 255, 255, 255}),
     std::make_pair(IDisplayModule::Color::black,   SDL_Color{  0,   0,   0, 255}),
     std::make_pair(IDisplayModule::Color::white,   SDL_Color{255, 255, 255, 255}),
-    std::make_pair(IDisplayModule::Color::none,    SDL_Color{  0,   0,  0,   0}),
 };
 
 const std::unordered_map<IDisplayModule::Button, SDL_Scancode> sdl::SDL_KEYS = {
