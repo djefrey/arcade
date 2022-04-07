@@ -10,8 +10,6 @@
 #include "sdlDisplay.hpp"
 #include "sdlRawTexture.hpp"
 
-#include <iostream>
-
 sdl::SDLDisplay::SDLDisplay()
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
