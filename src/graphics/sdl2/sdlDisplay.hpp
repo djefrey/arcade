@@ -20,6 +20,7 @@ namespace sdl {
 
         SDL_Window *_window = nullptr;
         SDL_Renderer *_renderer = nullptr;
+
         struct FontKey {
             std::string filename;
             std::size_t size;
@@ -39,6 +40,12 @@ namespace sdl {
 
         bool _close = false;
         std::string _textInput;
+
+        int _numkeys = -1;
+        uint8_t *_oldkeys = nullptr;
+
+        uint8_t _mouseButton = 0;
+        Vector2u _mousePos = {1, 1};
 
     public:
         SDLDisplay();

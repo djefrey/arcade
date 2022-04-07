@@ -10,6 +10,8 @@
 #include "sdlDisplay.hpp"
 #include "sdlRawTexture.hpp"
 
+#include <iostream>
+
 sdl::SDLDisplay::SDLDisplay()
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -18,6 +20,10 @@ sdl::SDLDisplay::SDLDisplay()
         throw std::runtime_error("Could not init IMG module");
     if (TTF_Init() == -1)
         throw std::runtime_error("Could not init TTF module");
+    SDL_GetKeyboardState(&_numkeys);
+    _oldkeys = new uint8_t[_numkeys];
+    for (int i = 0; i < _numkeys; i++)
+        _oldkeys[i] = false;
 }
 
 sdl::SDLDisplay::~SDLDisplay()
@@ -45,8 +51,13 @@ void sdl::SDLDisplay::openWindow(Vector2u size)
 
 void sdl::SDLDisplay::update()
 {
+    const uint8_t *keys = SDL_GetKeyboardState(NULL);
     SDL_Event event;
 
+    for (int i = 0; i < _numkeys; i++)
+        _oldkeys[i] = keys[i];
+    _mouseButton = 0;
+    _textInput.clear();
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
             case SDL_QUIT:
@@ -54,6 +65,10 @@ void sdl::SDLDisplay::update()
                 break;
             case SDL_TEXTINPUT:
                 _textInput = std::string(event.text.text);
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+                _mouseButton = event.button.button;
+                _mousePos = {(uint) event.button.x, (uint) event.button.y};
                 break;
         }
     }
@@ -63,12 +78,26 @@ bool sdl::SDLDisplay::isButtonPressed(IDisplayModule::Button button)
 {
     const uint8_t *keys = SDL_GetKeyboardState(NULL);
 
-    return keys[SDL_KEYS.at(button)];
+    return !_oldkeys[SDL_KEYS.at(button)] && keys[SDL_KEYS.at(button)];
 }
 
 IDisplayModule::MouseButtonReleaseEvent sdl::SDLDisplay::getMouseButtonReleaseEvent()
 {
-    return IDisplayModule::MouseButtonReleaseEvent{};
+    auto button = IDisplayModule::MouseButtonReleaseEvent{};
+
+    switch (_mouseButton) {
+        case SDL_BUTTON_LEFT:
+            button.type = MouseButtonReleaseEvent::Type::Left;
+            break;
+        case SDL_BUTTON_RIGHT:
+            button.type = MouseButtonReleaseEvent::Type::Right;
+            break;
+        default:
+            button.type = MouseButtonReleaseEvent::Type::None;
+            break;
+    }
+    button.cellPosition = {_mousePos.x / _pixelsPerCell, _mousePos.y / _pixelsPerCell};
+    return button;
 }
 
 void sdl::SDLDisplay::startTextInput()
@@ -78,6 +107,13 @@ void sdl::SDLDisplay::startTextInput()
 
 std::string sdl::SDLDisplay::getTextInput()
 {
+    const uint8_t *keys;
+
+    if (_textInput.empty()) {
+        keys = SDL_GetKeyboardState(NULL);
+        if (!_oldkeys[SDL_SCANCODE_BACKSPACE] && keys[SDL_SCANCODE_BACKSPACE])
+            return "\b";
+    }
     return _textInput;
 }
 
