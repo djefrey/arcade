@@ -78,6 +78,8 @@ public:
 
     void addNewScore(std::uint32_t score) override;
 
+    const std::string &getPlayerName() override;
+
     void changeDisplayModule(std::unique_ptr<IDisplayModule> displayModule);
     void changeGameModule(std::unique_ptr<IGameModule> gameModule);
     void changeDisplayModuleToCurrentlySelected();

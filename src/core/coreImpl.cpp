@@ -119,6 +119,11 @@ void CoreImpl::addNewScore(std::uint32_t score)
     this->scores.insert({score, this->playerName});
 }
 
+const std::string &CoreImpl::getPlayerName()
+{
+    return this->playerName;
+}
+
 void CoreImpl::changeDisplayModule(std::unique_ptr<IDisplayModule> displayModule)
 {
     for (auto &i : this->textures)
