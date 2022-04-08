@@ -75,9 +75,11 @@ void NibblerGameModule::update()
     if (_tick == 90)
         _arena.spawnFruit();
     if (_tick >= 90) {
-        if (_coreHandle->isButtonPressed(ICore::Button::Left))
+        if (_coreHandle->isButtonPressed(ICore::Button::Left)
+        && nibbler::rotateDir(_actualDir, true) != _snakeMove.front())
             _actualDir = nibbler::rotateDir(_actualDir, true);
-        else if (_coreHandle->isButtonPressed(ICore::Button::Right))
+        else if (_coreHandle->isButtonPressed(ICore::Button::Right)
+        && nibbler::rotateDir(_actualDir, false) != _snakeMove.front())
             _actualDir = nibbler::rotateDir(_actualDir, false);
 
         moveSnake();
