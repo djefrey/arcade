@@ -47,7 +47,10 @@ arcade_set_common_target_properties(arcade_nibbler)
 
 add_library(arcade_ncurses SHARED
   "src/graphics/ncurses/main.cpp"
+  "src/graphics/ncurses/ncursesDisplay.cpp"
+  "src/graphics/ncurses/ncursesTexture.cpp"
 )
+target_link_libraries(arcade_ncurses curses)
 arcade_set_common_target_properties(arcade_ncurses)
 
 add_library(arcade_sdl2 SHARED

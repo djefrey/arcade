@@ -62,7 +62,7 @@ void sdl::SDLDisplay::update()
                 _close = true;
                 break;
             case SDL_TEXTINPUT:
-                _textInput = std::string(event.text.text);
+                _textInput += std::string(event.text.text);
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 _mouseButton = event.button.button;

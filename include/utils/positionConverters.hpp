@@ -17,6 +17,6 @@ namespace utils {
 
     inline ICore::Vector2u getSquareCenter(ICore::Vector2u squareTopLeftPos, ICore::Vector2u squareSize)
     {
-        return {squareTopLeftPos.x + ((squareTopLeftPos.x - squareSize.x) / 2), squareTopLeftPos.y + ((squareTopLeftPos.y - squareSize.y) / 2)};
+        return {squareTopLeftPos.x + (squareSize.x / 2), squareTopLeftPos.y + (squareSize.y / 2)};
     }
 };
