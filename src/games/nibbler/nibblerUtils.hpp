@@ -24,6 +24,13 @@ namespace nibbler {
         DOWNRIGHT,
     };
 
+    enum CollisionResult {
+        NOTHING,
+        SNAKE,
+        WALL,
+        FRUIT,
+    };
+
     void movePos(ICore::Vector2u &pos, Direction dir, uint amount);
     Direction rotateDir(Direction dir, bool left);
     Direction inverseDir(Direction dir);

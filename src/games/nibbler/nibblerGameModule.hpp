@@ -9,43 +9,55 @@
 
 #include <deque>
 #include "arcade-interface/IGameModule.hpp"
+#include "phase.hpp"
 #include "arena.hpp"
 #include "textures.hpp"
+#include "score.hpp"
 #include "nibblerUtils.hpp"
 
-class NibblerGameModule : public virtual IGameModule {
-    using Vector2u = IDisplayModule::Vector2u;
+namespace nibbler {
+    class NibblerGameModule : public virtual IGameModule {
+        using Vector2u = IDisplayModule::Vector2u;
 
-    const Vector2u ARENA_SIZE = {16, 16};
+        const Vector2u ARENA_SIZE = {16, 16};
 
-    ICore *_coreHandle = nullptr;
-    Textures _textures;
+        ICore *_coreHandle = nullptr;
+        Textures _textures;
 
-    std::deque<Vector2u> _snake;
-    std::deque<nibbler::Direction> _snakeMove;
-    nibbler::Direction _actualDir = nibbler::RIGHT;
-    uint _lastMoveTick = 0;
+        std::unique_ptr<Phase> _actualPhase = nullptr;
+        Phases _nextPhase = Phases::INIT;
 
-    Arena _arena;
+        Arena _arena;
+        ScoreWriter _scoreWriter;
 
-    uint _tick = 0;
-    uint _score = 0;
+        std::deque<Vector2u> _snake;
+        std::deque<Direction> _snakeMove;
 
-    void reloadGame(const std::string &level);
-    void loadLevel(const std::string &level);
-    void readLevelChar(uint32_t x, uint32_t y, char c);
+        void readLevelChar(uint32_t x, uint32_t y, char c);
 
+        void drawSnakeHead(uint offset);
+        void drawSnakeTail(uint offset);
 
-    void moveSnake();
-    void checkCollision();
-    bool growSnake();
+        public:
+        void init(ICore *coreHandle) override;
+        void update() override;
+        void draw() override;
 
-    void drawSnake();
-    void drawSnakeHead();
-    void drawSnakeTail();
+        ICore *getCore() { return _coreHandle; };
+        Arena &getArena() { return _arena; };
+        ScoreWriter &getScoreWriter() { return _scoreWriter; };
+        const std::deque<Vector2u> getSnake() { return _snake; };
+        const std::deque<Direction> getSnakeMoves() { return _snakeMove; };
 
-    public:
-    void init(ICore *coreHandle) override;
-    void update() override;
-    void draw() override;
-};
+        void loadPhase(Phases phase);
+        void loadLevel(Vector2u size, const std::string &level);
+
+        void drawArena();
+
+        void drawSnake(int nbCells, uint headOffset, uint tailOffset);
+        void moveSnake(Direction dir);
+
+        CollisionResult checkCollision();
+        bool growSnake();
+    };
+}
