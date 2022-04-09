@@ -46,7 +46,7 @@ class CoreImpl : public virtual ICore {
             return std::tie(value, playerName) < std::tie(other.value, other.playerName);
         }
     };
-    std::multiset<Score> scores;
+    std::unordered_map<std::string, std::multiset<Score>> scores; // A set of scores for each game
 
     void initLibraryLists();
     bool shouldExitNow();

@@ -124,14 +124,16 @@ void MenuGame::draw()
     }
 
     std::uint32_t scoresPrinted = 0;
-    for (auto it = this->coreHandle->getScores().rbegin(); it != this->coreHandle->getScores().rend() && scoresPrinted < 35; ++it, ++scoresPrinted) {
-        this->textHandler.drawText(it->playerName, 10, utils::posCellToPix({61, 4 + scoresPrinted}, 8));
-        this->coreHandle->renderSprite({utils::posCellToPix({71, 4 + scoresPrinted}, 8), this->boxLeft});
+    auto scoreList = this->coreHandle->getScores().find(std::string(this->coreHandle->getGameLibraries()[this->coreHandle->currentlySelectedGame].first.getFileName()));
+    if (scoreList != this->coreHandle->getScores().end())
+        for (auto it = scoreList->second.rbegin(); it != scoreList->second.rend() && scoresPrinted < 35; ++it, ++scoresPrinted) {
+            this->textHandler.drawText(it->playerName, 10, utils::posCellToPix({61, 4 + scoresPrinted}, 8));
+            this->coreHandle->renderSprite({utils::posCellToPix({71, 4 + scoresPrinted}, 8), this->boxLeft});
 
-        std::string scoreString = std::string(7, '0') + std::to_string(it->value);
-        scoreString = scoreString.substr(scoreString.size() - 7);
-        this->textHandler.drawText(scoreString, 7, utils::posCellToPix({72, 4 + scoresPrinted}, 8));
-    }
+            std::string scoreString = std::string(7, '0') + std::to_string(it->value);
+            scoreString = scoreString.substr(scoreString.size() - 7);
+            this->textHandler.drawText(scoreString, 7, utils::posCellToPix({72, 4 + scoresPrinted}, 8));
+        }
 
     this->textHandler.drawText("Enter name here:", std::numeric_limits<std::size_t>::max(), utils::posCellToPix({41, 4}, 8));
     this->textHandler.drawText(this->coreHandle->playerName, 18, utils::posCellToPix({41, 8}, 8));

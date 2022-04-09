@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <filesystem>
+#include <sstream>
 #include <stdexcept>
 #include <cassert>
 
@@ -14,14 +15,11 @@ CoreImpl::CoreImpl()
     std::ifstream scoreFile("scores.txt");
     std::string currentLine;
     while (std::getline(scoreFile, currentLine)) {
+        std::string game;
         CoreImpl::Score score;
-        std::size_t i = currentLine.size() - 1;
-        for (; i != std::size_t(-1); --i)
-            if (!isdigit(currentLine[i]) && currentLine[i] != '-')
-                break;
-        score.value = std::strtol(currentLine.substr(i + 1).c_str(), nullptr, 0);
-        score.playerName = currentLine.substr(0, i);
-        this->scores.insert(score);
+        std::stringstream currentLineStream(currentLine);
+        currentLineStream >> game >> score.playerName >> score.value;
+        this->scores[game].insert(score);
     }
 }
 
@@ -29,7 +27,8 @@ CoreImpl::~CoreImpl()
 {
     std::ofstream scoreFile("scores.txt");
     for (const auto &i : this->scores)
-        scoreFile << i.playerName << ' ' << i.value << '\n';
+        for (const auto &j : i.second)
+            scoreFile << i.first << ' ' << j.playerName << ' ' << j.value << '\n';
 }
 
 IDisplayModule *CoreImpl::checkDisplayModuleNonNull()
@@ -116,7 +115,7 @@ void CoreImpl::renderSprite(ICore::Sprite sprite)
 
 void CoreImpl::addNewScore(std::uint32_t score)
 {
-    this->scores.insert({score, this->playerName});
+    this->scores[std::string(this->gameLibraries[this->currentlySelectedGame].first.getFileName())].insert({score, this->playerName});
 }
 
 const std::string &CoreImpl::getPlayerName()
