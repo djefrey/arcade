@@ -97,6 +97,8 @@ void ncurses::NCursesDisplay::update()
             this->buttonsPressedThisFrame[displayButton->second] = true;
         if (isprint(character))
             this->textInputThisFrame += character;
+        if (character == KEY_BACKSPACE)
+            this->textInputThisFrame += '\b';
         if (character == KEY_MOUSE) {
             MEVENT mouseEvent;
             if (getmouse(&mouseEvent) != ERR) {
