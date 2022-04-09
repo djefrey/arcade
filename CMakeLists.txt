@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
+set(CMAKE_BUILD_TYPE Debug)
+
 macro(arcade_set_common_target_properties target_name)
   set_target_properties(${target_name}
     PROPERTIES
@@ -76,3 +78,19 @@ add_library(arcade_sfml SHARED
 target_link_libraries(arcade_sfml sfml-graphics sfml-system sfml-window)
 target_link_libraries(arcade_sfml stdc++fs) # Required on old versions of GCC
 arcade_set_common_target_properties(arcade_sfml)
+
+find_package(Freetype REQUIRED)
+
+add_library(arcade_opengl SHARED
+  "src/graphics/opengl/main.cpp"
+  "src/graphics/opengl/oglDisplay.cpp"
+  "src/graphics/opengl/shader.cpp"
+  "src/graphics/opengl/texture.cpp"
+  "src/graphics/opengl/font.cpp"
+  "src/graphics/opengl/oglConstants.cpp"
+)
+target_link_libraries(arcade_opengl sfml-graphics sfml-system sfml-window GL GLU GLEW ${FREETYPE_LIBRARIES} png)
+target_include_directories(arcade_opengl PRIVATE ${FREETYPE_INCLUDE_DIRS})
+target_link_libraries(arcade_opengl stdc++fs) # Required on old versions of GCC
+set_target_properties(arcade_opengl PROPERTIES EXCLUDE_FROM_ALL TRUE)
+arcade_set_common_target_properties(arcade_opengl)
