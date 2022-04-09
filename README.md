@@ -9,3 +9,5 @@ Play game with differents graphic libraries
 - tom.laumonier@epitech.eu
 - alexandre.frantz@epitech.eu
 - maxime.hoffbeck@epitech.eu
+- romanie.de-meyer@epitech.eu
+- lucas.rossignon@epitech.eu
