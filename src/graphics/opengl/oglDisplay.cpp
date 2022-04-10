@@ -15,12 +15,6 @@
 ogl::OpenGLDisplay::OpenGLDisplay()
 {
     XInitThreads();
-    glewInit();
-    glEnable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glGenBuffers(1, &_buffer);
-    _shader = std::make_unique<Shader>(VERTEX_SHADER, FRAGMENT_SHADER);
 }
 
 ogl::OpenGLDisplay::~OpenGLDisplay()
@@ -33,8 +27,14 @@ void ogl::OpenGLDisplay::openWindow(Vector2u size)
     sf::VideoMode mode{size.x, size.y};
     sf::ContextSettings settings{0, 0, 0, 3, 3, sf::ContextSettings::Default, false};
 
-    _window.create(mode, "Arcade (OpenGL)", 7U, settings);
     _windowSize = size;
+    _window.create(mode, "Arcade (OpenGL)", 7U, settings);
+    glewInit();
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glGenBuffers(1, &_buffer);
+    _shader = std::make_unique<Shader>(VERTEX_SHADER, FRAGMENT_SHADER);
 }
 
 void ogl::OpenGLDisplay::display()
@@ -69,16 +69,16 @@ void ogl::OpenGLDisplay::renderSprite(IDisplayModule::Sprite sprite)
     ogl::OpenGLTexture *texture = dynamic_cast<ogl::OpenGLTexture*>(sprite.texture);
     Vector2u size = texture->getSize();
 
-    GLfloat startX = ((float) sprite.rawPixelPosition.x) / _windowSize.x * 2 - 1;
-    GLfloat startY = ((float) sprite.rawPixelPosition.y) / _windowSize.y * -2 + 1;
-    GLfloat sizeX = ((float) size.x / _windowSize.x) * 2;
-    GLfloat sizeY = ((float) size.y / _windowSize.y) * 2;
+    GLfloat centerX = ((float) sprite.rawPixelPosition.x + size.x / 2.0) / _windowSize.x *  2 - 1;
+    GLfloat centerY = ((float) sprite.rawPixelPosition.y + size.y / 2.0) / _windowSize.y * -2 + 1;
+    GLfloat halfSizeX = ((float) size.x / 2.0) / _windowSize.x * 2;
+    GLfloat halfSizeY = ((float) size.y / 2.0) / _windowSize.y * 2;
     GLfloat data[4 * 4] = {
     //         X               Y         U    V
-        startX,         startY,         0.0, 1.0, // 0
-        startX,         startY + sizeY, 0.0, 0.0, // 1
-        startX + sizeX, startY,         1.0, 1.0, // 2
-        startX + sizeX, startY + sizeY, 1.0, 0.0, // 3
+        centerX - halfSizeX, centerY - halfSizeY, 0.0, 1.0, // 0
+        centerX - halfSizeX, centerY + halfSizeY, 0.0, 0.0, // 1
+        centerX + halfSizeX, centerY - halfSizeY, 1.0, 1.0, // 2
+        centerX + halfSizeX, centerY + halfSizeY, 1.0, 0.0, // 3
     };
 
     _shader->bind();

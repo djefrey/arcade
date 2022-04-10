@@ -33,6 +33,10 @@ namespace ogl {
             png_set_sig_bytes(png_ptr, 0);
             png_read_info(png_ptr, info_ptr);
 
+            int test;
+            std::cout << filename << ": " << png_get_sRGB(png_ptr, info_ptr, &test) << std::endl;
+            std::cout << test << std::endl;
+
             *width = png_get_image_width(png_ptr, info_ptr);
             *height = png_get_image_height(png_ptr, info_ptr);
             rowbytes = 4 * sizeof(uint8_t) * *width;

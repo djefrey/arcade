@@ -6,20 +6,22 @@
 */
 
 #include "texture.hpp"
-#include "png.hpp"
 #include "font.hpp"
 #include <iostream>
 
 ogl::OpenGLTexture::OpenGLTexture(const std::string &filename, uint width, uint height) :
     _width(width), _height(height)
 {
+    sf::Image img;
+    const uint8_t *data;
     uint textWidth;
     uint textHeight;
-    uint8_t *data;
 
-    if (textWidth == 0 || textHeight == 0)
-        return;
-    data = PNG::readPNGFile(filename, &textWidth, &textHeight);
+    if (!img.loadFromFile(filename))
+        throw std::runtime_error("Could not load texture " + filename);
+    data = img.getPixelsPtr();
+    textWidth = img.getSize().x;
+    textHeight = img.getSize().x;
     glGenTextures(1, &_textureId);
     this->bind();
     glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, textWidth, textHeight);
@@ -29,7 +31,6 @@ ogl::OpenGLTexture::OpenGLTexture(const std::string &filename, uint width, uint 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     this->unbind();
-    delete data;
 }
 
 ogl::OpenGLTexture::OpenGLTexture(const std::string &fontpath, char c, uint size, Color textColor, Color bkgdColor) :
