@@ -6,8 +6,8 @@
 */
 
 #include <stdexcept>
-#include <string.h>
 #include "font.hpp"
+#include "utils.hpp"
 
 std::unique_ptr<ogl::OpenGLFont> ogl::OpenGLFont::_instance = nullptr;
 
@@ -35,8 +35,6 @@ FT_Face ogl::OpenGLFont::getFontFace(const std::string &filepath)
     return _fonts.at(filepath);
 }
 
-#include <iostream>
-
 ogl::FontCharData ogl::OpenGLFont::getFontBitmap(const std::string &filepath, char c, OGLColor textColor, OGLColor bkgdColor)
 {
     const uint8_t textColor8b[4] = {(uint8_t) textColor.r, (uint8_t) textColor.g, (uint8_t) textColor.b, (uint8_t) textColor.a};
@@ -52,9 +50,9 @@ ogl::FontCharData ogl::OpenGLFont::getFontBitmap(const std::string &filepath, ch
     data = new uint8_t[4 * face->glyph->bitmap.width * face->glyph->bitmap.rows];
     for (int i = 0; i < face->glyph->bitmap.width * face->glyph->bitmap.rows; i++) {
         if (bitmap[i] == 0)
-            memcpy(data + i * 4, bkgdColor8b, 4);
+            Utils::copyMemory(data + i * 4, bkgdColor8b, 4);
         else
-            memcpy(data + i * 4, textColor8b,  4);
+            Utils::copyMemory(data + i * 4, textColor8b,  4);
     }
     return std::make_tuple(data, face->glyph->bitmap.width, face->glyph->bitmap.rows);
 };
